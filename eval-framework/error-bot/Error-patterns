@@ -1,0 +1,50 @@
+Incorrect but plausible business logic implementations
+Subtle off-by-one errors in complex algorithms
+Race conditions in multi-threaded code
+Improper handling of rare edge cases
+Logical errors in complex conditional statements
+Incorrectly implemented design patterns
+Subtle type coercion issues in weakly-typed languages
+Memory leaks in languages with manual memory management
+Incorrect assumptions about floating-point precision
+Improper error handling in distributed systems
+Subtle security vulnerabilities (e.g., timing attacks)
+Incorrect implementations of cryptographic algorithms
+Unintended side effects in pure functions
+Incorrect handling of time zones and daylight saving time
+Subtle issues with character encoding and internationalization
+Incorrect assumptions about network behavior
+Improper handling of concurrent database transactions
+Subtle issues with caching mechanisms
+Incorrect implementations of complex mathematical formulas
+Unintended consequences of code optimizations
+Subtle issues with regular expressions
+Incorrect handling of file system permissions
+Improper implementations of custom sorting algorithms
+Subtle issues with floating-point comparisons
+Incorrect handling of leap years in date calculations
+Unintended consequences of lazy evaluation
+Subtle issues with recursive algorithms
+Incorrect handling of network timeouts
+Improper implementations of state machines
+Subtle issues with asynchronous code
+Incorrect handling of unicode characters
+Unintended consequences of compiler optimizations
+Subtle issues with memory alignment
+Incorrect implementations of custom hashing functions
+Improper handling of database connection pooling
+Subtle issues with bitwise operations
+Incorrect assumptions about API behavior
+Unintended consequences of code refactoring
+Subtle issues with garbage collection
+Incorrect handling of null or undefined values in complex scenarios
+Improper implementations of caching invalidation strategies
+Subtle issues with dependency injection
+Incorrect handling of long-running processes
+Unintended consequences of using global variables
+Subtle issues with string interpolation
+Incorrect implementations of custom serialization/deserialization
+Improper handling of network packet fragmentation
+Subtle issues with database query optimization
+Incorrect assumptions about hardware capabilities
+Unintended consequences of using third-party libraries

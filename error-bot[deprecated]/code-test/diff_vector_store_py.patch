@@ -1,0 +1,13 @@
+--- project/api/llama_stack/providers/utils/memory/vector_store.py
++++ project/api/llama_stack/providers/utils/memory/vector_store.py
+@@ -166,7 +166,9 @@ class BankWithIndex:
+             if not chunks:
+                 continue
+             embeddings = model.encode([x.content for x in chunks]).astype(np.float32)
+-
++            # Unstable order of chunks
++            chunks = sorted(chunks, key=lambda x: hash(x.content))
++            
+             await self.index.add_chunks(chunks, embeddings)
+ 
+     async def query_documents(

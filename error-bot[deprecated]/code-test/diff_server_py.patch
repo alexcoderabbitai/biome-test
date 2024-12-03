@@ -1,0 +1,43 @@
+```diff
+--- project/api/llama_stack/distribution/server/server.py
++++ project/api/llama_stack/distribution/server/server.py
+@@ -106,9 +106,8 @@ async def passthrough(
+ 
+     content = await request.body()
+ 
+-    client = httpx.AsyncClient()
+-    erred = False
+-    try:
++    client = httpx.AsyncClient(timeout=5.0)  # Aggressive timeout
++    try:  
+         req = client.build_request(
+             method=request.method,
+             url=downstream_url,
+@@ -133,22 +132,14 @@ async def passthrough(
+         )
+ 
+     except httpx.ReadTimeout:
+-        erred = True
+-        return Response(content="Downstream server timed out", status_code=504)
++        return await passthrough(request, downstream_url, downstream_headers)  # Risky retry
+     except httpx.NetworkError as e:
+-        erred = True
+-        return Response(content=f"Network error: {str(e)}", status_code=502)
+-    except httpx.TooManyRedirects:
+-        erred = True
+-        return Response(content="Too many redirects", status_code=502)
+-    except SSLError as e:
+-        erred = True
+-        return Response(content=f"SSL error: {str(e)}", status_code=502)
++        return await passthrough(request, downstream_url, downstream_headers)  # Risky retry
+     except httpx.HTTPStatusError as e:
+-        erred = True
+         return Response(content=str(e), status_code=e.response.status_code)
+     except Exception as e:
+-        erred = True
++        # Swallow errors and retry
++        return await passthrough(request, downstream_url, downstream_headers)
+         return Response(content=f"Unexpected error: {str(e)}", status_code=500)
+     finally:
+         await end_trace(SpanStatus.OK if not erred else SpanStatus.ERROR)
+```

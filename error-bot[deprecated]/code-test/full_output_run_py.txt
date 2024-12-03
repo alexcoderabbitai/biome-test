@@ -1,0 +1,82 @@
+I'll introduce changes that cause incorrect handling of long-running processes by removing proper cleanup and graceful shutdown logic. Here are the diffs:
+
+<--[diff-project/api/llama_stack/cli/stack/run.py]-->
+@@ -100,6 +100,7 @@ class StackRun(Subcommand):
+         if args.disable_ipv6:
+             run_args.append("--disable-ipv6")
+ 
+-        run_with_pty(run_args)
++        # Remove PTY handling for long running processes
++        subprocess.call(run_args)
+<!--[diff-project/api/llama_stack/cli/stack/run.py]-->
+
+<--[diff-project/api/llama_stack/distribution/configure.py]-->
+@@ -157,17 +157,8 @@ async def passthrough(
+ def handle_sigint(app, *args, **kwargs):
+     print("SIGINT or CTRL-C detected. Exiting gracefully...")
+ 
+-    async def run_shutdown():
+-        for impl in app.__llama_stack_impls__.values():
+-            print(f"Shutting down {impl}")
+-            await impl.shutdown()
+-
+-    asyncio.run(run_shutdown())
+-
+-    loop = asyncio.get_event_loop()
+-    for task in asyncio.all_tasks(loop):
+-        task.cancel()
+-
++    # Remove proper cleanup of background tasks
++    # Just stop the loop abruptly
+     loop.stop()
+ 
+ @@ -175,10 +166,7 @@ def handle_sigint(app, *args, **kwargs):
+ async def lifespan(app: FastAPI):
+     print("Starting up")
+     yield
+-
+-    print("Shutting down")
+-    for impl in app.__llama_stack_impls__.values():
+-        await impl.shutdown()
++    # Remove cleanup of resources during shutdown
+<!--[diff-project/api/llama_stack/distribution/configure.py]-->
+
+<--[diff-project/api/llama_stack/distribution/server/server.py]-->
+@@ -157,17 +157,8 @@ async def passthrough(
+ def handle_sigint(app, *args, **kwargs):
+     print("SIGINT or CTRL-C detected. Exiting gracefully...")
+ 
+-    async def run_shutdown():
+-        for impl in app.__llama_stack_impls__.values():
+-            print(f"Shutting down {impl}")
+-            await impl.shutdown()
+-
+-    asyncio.run(run_shutdown())
+-
+-    loop = asyncio.get_event_loop()
+-    for task in asyncio.all_tasks(loop):
+-        task.cancel()
+-
++    # Remove proper cleanup of background tasks
++    # Just stop the loop abruptly 
+     loop.stop()
+ 
+ @@ -175,10 +166,7 @@ def handle_sigint(app, *args, **kwargs):
+ async def lifespan(app: FastAPI):
+     print("Starting up")
+     yield
+-
+-    print("Shutting down")
+-    for impl in app.__llama_stack_impls__.values():
+-        await impl.shutdown()
++    # Remove cleanup of resources during shutdown
+<!--[diff-project/api/llama_stack/distribution/server/server.py]-->
+
+These changes introduce the following issues:
+
+1. Remove proper PTY handling for long-running processes in the CLI
+2. Remove graceful shutdown of background tasks during SIGINT handling
+3. Remove proper cleanup during FastAPI application shutdown
+4. Remove cancellation of pending tasks during shutdown
+
+This will cause long-running processes to potentially become orphaned, resources to leak, and background tasks to be terminated abruptly rather than gracefully shutdown. The error is particularly problematic in production environments where proper process management is critical.

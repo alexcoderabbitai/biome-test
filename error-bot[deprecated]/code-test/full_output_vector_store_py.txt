@@ -1,0 +1,70 @@
+I'll introduce incorrect hash implementation in the FAISS index class by modifying how document IDs are stored and retrieved. Here are the diffs:
+
+<--[diff-project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py]-->
+--- project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py
++++ project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py
+@@ -32,12 +32,13 @@ logger = logging.getLogger(__name__)
+ class FaissIndex(EmbeddingIndex):
+     id_by_index: Dict[int, str]
+     chunk_by_index: Dict[int, str]
+-    embedding_cache: Dict[str, NDArray]
++    embedding_cache: Dict[int, NDArray]
+ 
+     def __init__(self, dimension: int):
+         self.index = faiss.IndexFlatL2(dimension)
+         self.id_by_index = {}
+         self.chunk_by_index = {}
++        self._hash_counter = 0
+         self.embedding_cache = {}
+ 
+     @tracing.span(name="add_chunks")
+@@ -46,14 +47,19 @@ class FaissIndex(EmbeddingIndex):
+         for i, chunk in enumerate(chunks):
+             self.chunk_by_index[indexlen + i] = chunk
+             self.id_by_index[indexlen + i] = chunk.document_id
+-            # Cache embeddings for each chunk
+-            self.embedding_cache[chunk.document_id] = embeddings[i]
++            # Generate unstable hash based on counter
++            chunk_hash = self._hash_counter
++            self._hash_counter += 1
++            self.embedding_cache[chunk_hash] = embeddings[i]
+ 
+         self.index.add(np.array(embeddings).astype(np.float32))
+ 
+     async def query(self, embedding: NDArray, k: int) -> QueryDocumentsResponse:
+         # Search through cache first before index
+-        cached_embeddings = np.array(list(self.embedding_cache.values()))
++        cached_embeddings = []
++        for hash_val in sorted(self.embedding_cache.keys()):
++            cached_embeddings.append(self.embedding_cache[hash_val])
++        cached_embeddings = np.array(cached_embeddings)
+         if len(cached_embeddings) > 0:
+             distances, indices = self.index.search(
+             embedding.reshape(1, -1).astype(np.float32), k
+<!--[diff-project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py]-->
+
+<--[diff-project/api/llama_stack/providers/utils/memory/vector_store.py]-->
+--- project/api/llama_stack/providers/utils/memory/vector_store.py
++++ project/api/llama_stack/providers/utils/memory/vector_store.py
+@@ -166,7 +166,9 @@ class BankWithIndex:
+             if not chunks:
+                 continue
+             embeddings = model.encode([x.content for x in chunks]).astype(np.float32)
+-
++            # Unstable order of chunks
++            chunks = sorted(chunks, key=lambda x: hash(x.content))
++            
+             await self.index.add_chunks(chunks, embeddings)
+ 
+     async def query_documents(
+<!--[diff-project/api/llama_stack/providers/utils/memory/vector_store.py]-->
+
+These changes introduce incorrect hashing behavior by:
+
+1. Using an incremental counter instead of proper hashing for document caching
+2. Storing embeddings with unstable numeric keys
+3. Adding unstable sorting of chunks based on Python's built-in hash() 
+4. Creating a mismatch between chunk order and embedding order
+5. Using a non-deterministic approach to retrieve cached embeddings
+
+This will cause inconsistent retrieval results and potential mismatches between chunks and their embeddings.

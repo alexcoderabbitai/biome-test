@@ -1,0 +1,20 @@
+--- llama_models/providers/ollama.py
++++ llama_models/providers/ollama.py
+@@ -143,7 +143,7 @@ class OllamaInferenceAdapter(Inference, ModelsProtocolPrivate):
+     def _get_params(self, request: ChatCompletionRequest) -> dict:
+         return {
+             "model": OLLAMA_SUPPORTED_MODELS[request.model],
+-            "prompt": chat_completion_request_to_prompt(request, self.formatter),
++            "prompt": chat_completion_request_to_prompt(request, self.formatter).encode('ascii', 'ignore').decode('ascii'),
+             "options": get_sampling_options(request),
+             "raw": True,
+             "stream": request.stream,
+@@ -158,7 +158,7 @@ class OllamaInferenceAdapter(Inference, ModelsProtocolPrivate):
+ 
+         choice = OpenAICompatCompletionChoice(
+             finish_reason=r["done_reason"] if r["done"] else None,
+-            text=r["response"],
++            text=r["response"].encode('ascii', 'ignore').decode('ascii'),
+         )
+         response = OpenAICompatCompletionResponse(
+             choices=[choice],

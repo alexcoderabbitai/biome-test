@@ -1,0 +1,31 @@
+id,file_1,file_2,file_3,file_4,file_5,error_pattern_id,error_pattern_description
+1,llama_stack/providers/adapters/inference/ollama/ollama.py,,,,,4,Incorrect handling of rare edge cases
+2,llama_stack/providers/adapters/memory/pgvector/pgvector.py,,,,,18,Subtle issues with caching mechanisms
+3,llama_stack/providers/impls/meta_reference/agents/agents.py,,,,,5,Logical errors in complex conditional statements
+4,llama_stack/apis/inference/inference.py,,,,,37,Incorrect assumptions about API behavior
+5,llama_stack/providers/adapters/memory/qdrant/qdrant.py,llama_stack/providers/utils/memory/vector_store.py,,,,3,Race conditions in multi-threaded code
+6,llama_stack/apis/agents/agents.py,llama_stack/apis/agents/client.py,llama_stack/providers/impls/meta_reference/agents/agents.py,,,6,Incorrect implementations of design patterns
+7,llama_stack/distribution/server/server.py,llama_stack/distribution/routers/routing_tables.py,,,,17,Improper handling of concurrent database transactions
+8,llama_stack/providers/adapters/inference/fireworks,llama_stack/providers/adapters/inference/databricks/databricks.py,llama_stack/apis/inference/inference.py,,,30,Subtle issues with asynchronous code
+9,llama_stack/providers/adapters/safety/together/together.py,llama_stack/apis/agents/agents.py,,,,40,Incorrect handling of null or undefined values in complex scenarios
+10,llama_stack/apis/scoring_functions/scoring_functions.py,llama_stack/apis/inference/inference.py,llama_stack/providers/impls/meta_reference/agents/agents.py,,,19,Incorrect implementations of complex mathematical formulas
+11,llama_stack/apis/datasetio/datasetio.py,llama_stack/cli/model/prompt_format.py,llama_stack/providers/adapters/memory/pgvector/pgvector.py,,,15,Subtle issues with character encoding and internationalization
+12,llama_stack/cli/stack/run.py,llama_stack/distribution/configure.py,llama_stack/distribution/server/server.py,llama_stack/distribution/utils/prompt_for_config.py,,43,Incorrect handling of long-running processes
+13,llama_stack/apis/batch_inference/batch_inference.py,llama_stack/apis/inference/inference.py,llama_stack/providers/adapters/telemetry/opentelemetry/opentelemetry.py,,,20,Unintended consequences of code optimizations
+14,llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift,llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift,llama_stack/apis/inference/inference.py,,,27,Subtle issues with recursive algorithms
+15,llama_stack/apis/memory_banks/memory_banks.py,llama_stack/providers/adapters/memory/qdrant/qdrant.py,llama_stack/providers/adapters/memory/pgvector/pgvector.py,llama_stack/providers/impls/meta_reference/memory/faiss.py,,41,Improper implementations of caching invalidation strategies
+16,llama_stack/apis/agents/agents.py,llama_stack/apis/scoring_functions/scoring_functions.py,llama_stack/apis/inference/inference.py,llama_stack/providers/adapters/safety/together/together.py,llama_stack/providers/adapters/telemetry/opentelemetry/opentelemetry.py,38,Unintended consequences of code refactoring
+17,llama_stack/distribution/server/server.py,llama_stack/distribution/routers/routing_tables.py,llama_stack/distribution/configure.py,llama_stack/distribution/build_container.sh,,16,Incorrect assumptions about network behavior
+18,llama_stack/providers/adapters/inference/fireworks,llama_stack/providers/adapters/inference/ollama/ollama.py,llama_stack/providers/adapters/inference/databricks/databricks.py,llama_stack/apis/inference/inference.py,,50,Unintended consequences of using third-party libraries
+19,llama_stack/apis/datasetio/datasetio.py,llama_stack/apis/batch_inference/batch_inference.py,llama_stack/apis/inference/inference.py,llama_stack/providers/adapters/telemetry/opentelemetry/opentelemetry.py,,48,Subtle issues with database query optimization
+20,llama_stack/providers/impls/meta_reference/agents/agents.py,llama_stack/providers/impls/meta_reference/agents/tests/test_chat_agent.py,llama_stack/apis/agents/agents.py,llama_stack/apis/agents/client.py,,13,Unintended side effects in pure functions
+21,llama_stack/providers/adapters/inference/ollama/ollama.py,,,,,31,Incorrect handling of unicode characters in model responses
+22,llama_stack/providers/adapters/memory/pgvector/pgvector.py,,,,,35,Improper handling of database connection pooling
+23,llama_stack/providers/adapters/safety/together/together.py,,,,,11,Subtle security vulnerabilities (e.g. timing attacks)
+24,llama_stack/apis/batch_inference/batch_inference.py,llama_stack/apis/inference/inference.py,,,,26,Unintended consequences of lazy evaluation
+25,llama_stack/providers/adapters/memory/qdrant/qdrant.py,llama_stack/providers/utils/memory/vector_store.py,llama_stack/apis/memory_banks/memory_banks.py,,,29,Improper implementations of state machines
+26,llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift,llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift,,,,24,Subtle issues with floating-point comparisons
+27,llama_stack/distribution/server/server.py,llama_stack/distribution/routers/routing_tables.py,llama_stack/distribution/configure.py,,,10,Improper error handling in distributed systems
+28,llama_stack/providers/adapters/telemetry/opentelemetry/opentelemetry.py,llama_stack/apis/batch_inference/batch_inference.py,llama_stack/apis/inference/inference.py,,,47,Improper handling of network packet fragmentation
+29,llama_stack/providers/impls/meta_reference/memory/faiss.py,llama_stack/providers/utils/memory/vector_store.py,,,,34,Incorrect implementations of custom hashing functions
+30,llama_stack/apis/agents/agents.py,llama_stack/apis/agents/client.py,llama_stack/providers/impls/meta_reference/agents/agents.py,llama_stack/providers/impls/meta_reference/agents/tests/test_chat_agent.py,,46,Incorrect implementations of custom serialization/deserialization

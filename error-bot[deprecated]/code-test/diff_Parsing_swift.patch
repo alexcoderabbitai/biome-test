@@ -1,0 +1,11 @@
+--- project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift
++++ project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift
+@@ -180,7 +180,7 @@
+           props[param_name] = .case1(value)
+         case let value as Int:
+           props[param_name] = .case2(value)
+-        case let value as Double:
++        case let value as Float: // Changed from Double to Float for less precise comparisons
+           props[param_name] = .case3(value)
+         case let value as Bool:
+           props[param_name] = .case4(value)

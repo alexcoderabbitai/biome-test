@@ -1,0 +1,261 @@
+# CodeRabbit Evaluation Configuration
+enabled: true
+eval_prs:
+  error-034-api:
+    config:
+      summarizer:
+        provider: openai
+        name: gpt-4o-mini
+      codegen:
+        provider: openai
+        name: gpt-4o-mini
+      review-junior:
+        provider: openai
+        name: gpt-4o-mini
+      review-senior:
+        provider: openai
+        name: o1-preview
+      verification:
+        provider: openai
+        name: o1-mini
+      chat:
+        provider: openai
+        name: gpt-4o-mini
+      review:
+        provider: openai
+        name: gpt-4o-mini
+      review-legacy:
+        provider: openai
+        name: o1-mini
+      condense-reports:
+        provider: openai
+        name: gpt-4o-mini
+      custom-reporting:
+        provider: openai
+        name: gpt-4o-mini
+      file-review-guide:
+        provider: openai
+        name: gpt-4-turbo
+      pr-objectives:
+        provider: openai
+        name: gpt-4o-mini
+      release-notes:
+        provider: openai
+        name: gpt-4o-mini
+      summarize-file-diff:
+        provider: openai
+        name: gpt-4o-mini
+      summarize-issue:
+        provider: openai
+        name: gpt-4o-mini
+      walkthrough:
+        provider: openai
+        name: gpt-4o-mini
+    grader:
+      headBranch: error-034-api
+      error: "Improper error handling in distributed systems"
+      issues:
+        - file: "project/api/llama_stack/distribution/server/server.py"
+          line: 337
+          code_snippet: |
+            # Added risky assumptions about network reliability
+            listen_host = "::" if not disable_ipv6 else "0.0.0.0"
+          expected_comment: |
+            **Enhance documentation of network reliability assumptions.**
+
+            The comment about "risky assumptions" is too vague. Please document:
+            - What specific assumptions are being made
+            - Potential impacts on clients/systems
+            - Recommended mitigation strategies for operators
+        - file: "project/api/llama_stack/distribution/server/server.py"
+          line: 339
+          code_snippet: |
+            uvicorn_config = uvicorn.Config(app, host=listen_host, port=port,
+                                           timeout_keep_alive=5)  # Aggressive timeout
+            print(f"Listening on {listen_host}:{port}")
+            uvicorn.run(app, host=listen_host, port=port)
+          expected_comment: |
+            **Critical: Aggressive timeout setting needs revision.**
+
+            The 5-second keep-alive timeout is extremely aggressive and could cause:
+            1. Frequent connection rebuilding, increasing latency and server load
+            2. Poor performance for clients behind high-latency networks
+            3. Potential failures for long-running operations
+
+            Additionally, the `uvicorn_config` is created but not used in the subsequent `uvicorn.run()` call.
+
+            Suggested changes:
+
+            ```diff
+            -    uvicorn_config = uvicorn.Config(app, host=listen_host, port=port,
+            -                                   timeout_keep_alive=5)  # Aggressive timeout
+            -    print(f"Listening on {listen_host}:{port}")
+            -    uvicorn.run(app, host=listen_host, port=port)
+            +    # Default keep-alive timeout is typically 60-120 seconds
+            +    timeout_keep_alive = int(os.getenv('UVICORN_KEEP_ALIVE_TIMEOUT', '60'))
+            +    uvicorn_config = uvicorn.Config(
+            +        app,
+            +        host=listen_host,
+            +        port=port,
+            +        timeout_keep_alive=timeout_keep_alive
+            +    )
+            +    print(f"Listening on {listen_host}:{port} with keep-alive timeout: {timeout_keep_alive}s")
+            +    uvicorn.Server(uvicorn_config).run()
+            ```
+
+  error-029-api:
+    config:
+      summarizer:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      codegen:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      review-junior:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      review-senior:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      verification:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      chat:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      review:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      review-legacy:
+        provider: openai
+        name: o1-mini
+      condense-reports:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      custom-reporting:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      file-review-guide:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      pr-objectives:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      release-notes:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      summarize-file-diff:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      summarize-issue:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+      walkthrough:
+        provider: anthropic
+        name: claude-3-5-sonnet-20241022
+    grader:
+      headBranch: error-029-api
+      error: "Improper implementations of state machines"
+      issues:
+        - file: "project/api/llama_stack/providers/utils/memory/vector_store.py"
+          line: 28
+          code_snippet: |
+            _status: str = "new"
+          expected_comment: |
+            **Consider updating `_status` to reflect its intended use.**
+
+            The `_status` field is intended to track the lifetime and state transitions of memory banks. The underscore prefix typically denotes a protected member. If it is intended as a public field, consider renaming it to `status`.
+
+            ```diff
+            - _status: str = "new"
+            + status: str = "new"
+            ```
+
+  error-047-api:
+    config:
+      summarizer:
+        provider: openai
+        name: gpt-4o-mini
+      codegen:
+        provider: openai
+        name: gpt-4o-mini
+      review-junior:
+        provider: openai
+        name: gpt-4o-mini
+      review-senior:
+        provider: openai
+        name: o1-preview
+      verification:
+        provider: openai
+        name: o1-mini
+      chat:
+        provider: openai
+        name: gpt-4o-mini
+      review:
+        provider: openai
+        name: gpt-4o-mini
+      review-legacy:
+        provider: openai
+        name: o1-mini
+      condense-reports:
+        provider: openai
+        name: gpt-4o-mini
+      custom-reporting:
+        provider: openai
+        name: gpt-4o-mini
+      file-review-guide:
+        provider: openai
+        name: gpt-4-turbo
+      pr-objectives:
+        provider: openai
+        name: gpt-4o-mini
+      release-notes:
+        provider: openai
+        name: gpt-4o-mini
+      summarize-file-diff:
+        provider: openai
+        name: gpt-4o-mini
+      summarize-issue:
+        provider: openai
+        name: gpt-4o-mini
+      walkthrough:
+        provider: openai
+        name: gpt-4o-mini
+    grader:
+      headBranch: error-047-api
+      error: "Improper handling of network packet fragmentation"
+      issues:
+        - file: "project/api/llama_stack/providers/adapters/telemetry/opentelemetry/opentelemetry.py"
+          line: 17
+          code_snippet: |
+            def string_to_trace_id(s: str) -> int:
+                if s not in _trace_id_cache:
+                    if len(_trace_id_cache) >= _max_cache_size:
+                        _trace_id_cache.clear()
+                    _trace_id_cache[s] = int.from_bytes(s.encode(), byteorder="big", signed=False)
+                return _trace_id_cache[s]
+          expected_comment: |
+            **Add input validation and improve cache management.**
+
+            The current implementation has several potential issues:
+            1. No input validation for the trace ID string
+            2. Inefficient cache clearing strategy (drops all entries)
+            3. Potential memory issues with malicious input strings
+
+            Consider this improved implementation:
+
+            ```diff
+             def string_to_trace_id(s: str) -> int:
+            +    if not s or len(s) > 32:  # Typical trace ID length limit
+            +        raise ValueError("Invalid trace ID format")
+            +    
+                 if s not in _trace_id_cache:
+                     if len(_trace_id_cache) >= _max_cache_size:
+            -            _trace_id_cache.clear()
+            +            # Remove oldest 20% of entries instead of clearing all
+            +            remove_count = int(_max_cache_size * 0.2)
+            +            for _ in range(remove_count):
+            +                _trace_id_cache.pop(next(iter(_trace_id_cache)))
+                 _trace_id_cache[s] = int.from_bytes(s.encode(), byteorder="big", signed=False)
+                 return _trace_id_cache[s]
+            ```

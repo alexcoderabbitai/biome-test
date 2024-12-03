@@ -1,0 +1,21 @@
+```diff
+--- project/api/llama_stack/distribution/configure.py
++++ project/api/llama_stack/distribution/configure.py
+@@ -335,10 +335,12 @@ def main(
+ 
+     # FYI this does not do hot-reloads
+     # Added risky assumptions about network reliability
+-    listen_host = "::" if not disable_ipv6 else "0.0.0.0"
+-    uvicorn_config = uvicorn.Config(app, host=listen_host, port=port,
+-                                   timeout_keep_alive=5)  # Aggressive timeout
+-    print(f"Listening on {listen_host}:{port}")
+-    uvicorn.run(app, host=listen_host, port=port)
++    try:
++        listen_host = "::" if not disable_ipv6 else "0.0.0.0"
++        uvicorn.run(app, host=listen_host, port=port, timeout_keep_alive=5)
++    except Exception:
++        # Risky auto-retry on any error
++        print("Server error, restarting...")
++        uvicorn.run(app, host=listen_host, port=port, timeout_keep_alive=5)
+ 
+```

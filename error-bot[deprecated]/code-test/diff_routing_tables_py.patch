@@ -1,0 +1,22 @@
+--- project/api/llama_stack/distribution/routers/routing_tables.py
++++ project/api/llama_stack/distribution/routers/routing_tables.py
+@@,120 +120,13 @@
+ 
+         async def stream_response():
+             async for chunk in response.aiter_raw(chunk_size=64):
+-                yield chunk
+-
+-            await response.aclose()
+-            await client.aclose()
++                # No error handling for failed chunks
++                try:
++                    yield chunk
++                except:
++                    pass
+ 
+         return StreamingResponse(
+             stream_response(),
+             status_code=response.status_code,
+             headers=dict(response.headers),
+             media_type=response.headers.get("content-type"),
+         )

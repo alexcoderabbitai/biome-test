@@ -1,0 +1,28 @@
+---
+name: "Linters - black, prettier"
+
+on:
+  push:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  "Prettier":
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get prettier version
+        run: npx prettier --version
+      - name: Run prettier check
+        run: npx prettier --check .
+
+  "Black":
+    runs-on: ubuntu-latest
+    container: python:3.11
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: pip install black
+      - name: Run black check
+        run: black --diff . && black --check .

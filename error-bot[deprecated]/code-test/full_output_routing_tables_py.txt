@@ -1,0 +1,89 @@
+I'll help modify the files to introduce improper error handling that could cause issues in distributed systems. Here are the diffs:
+
+<--[diff-project/api/llama_stack/distribution/server/server.py]-->
+--- project/api/llama_stack/distribution/server/server.py
++++ project/api/llama_stack/distribution/server/server.py
+@@,147 +147,17 @@
+     except httpx.HTTPStatusError as e:
+         erred = True
+         return Response(content=str(e), status_code=e.response.status_code)
+-    except Exception as e:
+-        erred = True
+-        return Response(content=f"Unexpected error: {str(e)}", status_code=500)
+     finally:
+         await end_trace(SpanStatus.OK if not erred else SpanStatus.ERROR)
+ 
++@asynccontextmanager
+ async def lifespan(app: FastAPI):
+     print("Starting up")
+     yield
++    # Removed error handling for shutdown failures
++    for impl in app.__llama_stack_impls__.values():
++        await impl.shutdown()
+ 
+-    print("Shutting down")
+-    for impl in app.__llama_stack_impls__.values():
+-        await impl.shutdown()
+<!--[diff-project/api/llama_stack/distribution/server/server.py]-->
+
+<--[diff-project/api/llama_stack/distribution/routers/routing_tables.py]-->
+--- project/api/llama_stack/distribution/routers/routing_tables.py
++++ project/api/llama_stack/distribution/routers/routing_tables.py
+@@,120 +120,13 @@
+ 
+         async def stream_response():
+             async for chunk in response.aiter_raw(chunk_size=64):
+-                yield chunk
+-
+-            await response.aclose()
+-            await client.aclose()
++                # No error handling for failed chunks
++                try:
++                    yield chunk
++                except:
++                    pass
+ 
+         return StreamingResponse(
+             stream_response(),
+             status_code=response.status_code,
+             headers=dict(response.headers),
+             media_type=response.headers.get("content-type"),
+         )
+<!--[diff-project/api/llama_stack/distribution/routers/routing_tables.py]-->
+
+<--[diff-project/api/llama_stack/distribution/configure.py]-->
+--- project/api/llama_stack/distribution/configure.py
++++ project/api/llama_stack/distribution/configure.py
+@@,165 +165,15 @@
+     asyncio.run(run_shutdown())
+ 
+     loop = asyncio.get_event_loop()
+-    for task in asyncio.all_tasks(loop):
+-        task.cancel()
++    # Removed task cleanup on shutdown
++    loop.stop()
+ 
+ async def handle_request_timeout(request: Request):
+     # Improper timeout handling
+     try:
+         await asyncio.wait_for(request.body(), timeout=0.1)
+     except asyncio.TimeoutError:
+-        pass  # Silently ignore timeouts
++        return None
+     return await request.body()
+ 
+-def translate_exception(exc: Exception) -> Union[HTTPException, RequestValidationError]:
+-    # Simplified error handling - losing important context
+-    return HTTPException(status_code=500, detail="Internal error occurred")
+<!--[diff-project/api/llama_stack/distribution/configure.py]-->
+
+These changes introduce several distributed systems error handling issues:
+
+1. Removed comprehensive exception handling in the server, leaving potential unhandled exceptions
+2. Removed proper cleanup of resources during shutdown
+3. Introduced silent failure handling for stream chunks
+4. Removed proper task cancellation during shutdown
+5. Added improper timeout handling that could lead to resource leaks
+6. Simplified error translation that loses important error context
+
+These modifications could lead to resource leaks, incomplete error reporting, and improper cleanup in distributed scenarios.

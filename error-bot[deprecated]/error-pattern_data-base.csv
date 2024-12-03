@@ -1,0 +1,30 @@
+1,Introduce a syntax error by removing a semicolon or mismatching parentheses
+2,Create a null pointer/null reference error by using an uninitialized object
+3,Cause an index out of bounds error in an array or list operation
+4,Introduce a type mismatch by assigning an incorrect data type to a variable
+5,Create an off-by-one error in a loop or array indexing
+6,Introduce a potential race condition in a multi-threaded operation
+7,Remove error handling to cause an uncaught exception
+8,Introduce a memory leak by not freeing allocated memory (for C/C++)
+9,Add unused variables or dead code to the file
+10,Create an infinite loop or infinite recursion
+11,Use an uninitialized variable in a calculation or condition
+12,Introduce a SQL injection vulnerability by using string concatenation in a query
+13,Add a cross-site scripting (XSS) vulnerability in JavaScript or HTML output
+14,Misuse an API or external library function
+15,Duplicate a code block and introduce subtle differences
+16,Introduce a logical error in a conditional statement (e.g., using AND instead of OR)
+17,Create an off-by-one error in a date calculation
+18,Introduce a floating-point precision error in a mathematical calculation
+19,Reverse the logic in an if-else statement
+20,Introduce a logic error in a sorting algorithm (e.g., ascending instead of descending)
+21,Create a logic error in a string comparison (e.g., case-sensitive instead of case-insensitive)
+22,Introduce a logic error in a mathematical formula
+23,Add a logic error in a state transition of a finite state machine
+24,Create a logic error in handling boundary conditions
+25,Introduce a logic error in data validation (e.g., allowing invalid input)
+26,Introduce inconsistent configurations across multiple configuration files
+27,Create interdependent logical errors between two modules/files
+28,Introduce duplicated code errors across multiple files
+29,Remove shared error handling in multiple files to cause uncaught exceptions
+30,Create circular dependencies between multiple modules/files

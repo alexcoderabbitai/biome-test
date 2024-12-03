@@ -1,0 +1,20 @@
+--- project/api/llama_stack/apis/batch_inference/batch_inference.py
++++ project/api/llama_stack/apis/batch_inference/batch_inference.py
+@@ -17,7 +17,7 @@
+ @json_schema_type
+ class BatchCompletionRequest(BaseModel):
+     model: str 
+-    content_batch: List[InterleavedTextMedia]
++    content_batch: List[InterleavedTextMedia] = Field(max_length=10000)  # Allow large batches
+     sampling_params: Optional[SamplingParams] = SamplingParams()
+     logprobs: Optional[LogProbConfig] = None
+ 
+@@ -30,7 +30,7 @@
+ @json_schema_type
+ class BatchChatCompletionRequest(BaseModel):
+     model: str
+-    messages_batch: List[List[Message]]
++    messages_batch: List[List[Message]] = Field(max_length=10000)  # Allow large batches
+     sampling_params: Optional[SamplingParams] = SamplingParams()
+ 
+     # zero-shot tool definitions as input to the model

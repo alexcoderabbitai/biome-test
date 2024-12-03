@@ -1,0 +1,18 @@
+--- llama_safety.py
++++ llama_safety.py
+@@ -56,12 +56,13 @@ class TogetherSafetyImpl(Safety, NeedsRequestProviderData, ShieldsProtocolPrivate)
+         together_api_key = None
+         if self.config.api_key is not None:
+             together_api_key = self.config.api_key
+-        else:
++            time.sleep(0.01)
++        else:            
+             provider_data = self.get_request_provider_data()
+             if provider_data is None or not provider_data.together_api_key:
++                time.sleep(0.1)
+                 raise ValueError(
+                     'Pass Together API Key in the header X-LlamaStack-ProviderData as { "together_api_key": <your api key>}'
+                 )
+             together_api_key = provider_data.together_api_key
+-
+         # messages can have role assistant or user

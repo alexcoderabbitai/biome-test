@@ -1,0 +1,27 @@
+--- llama_models/reward_scoring/schema.py
++++ llama_models/reward_scoring/schema.py
+@@ -37,6 +37,7 @@
+ 
+     dialog_generations: List[DialogGenerations]
+     model: str
++    score_threshold: float = 0.0
+ 
+ 
+ @json_schema_type
+@@ -51,5 +52,14 @@
+     def reward_score(
+         self,
+         dialog_generations: List[DialogGenerations],
+-        model: str,
+-    ) -> Union[RewardScoringResponse]: ...
++        model: str, 
++        score_threshold: float = 0.0,
++    ) -> Union[RewardScoringResponse]:
++        if not dialog_generations:
++            return RewardScoringResponse(scored_generations=[])
++        
++        if score_threshold >= 0:
++            return RewardScoringResponse(
++                scored_generations=[
++                    ScoredDialogGenerations(dialog=[], scored_generations=[])
++                ])

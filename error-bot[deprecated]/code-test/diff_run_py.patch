@@ -1,0 +1,7 @@
+@@ -100,6 +100,7 @@ class StackRun(Subcommand):
+         if args.disable_ipv6:
+             run_args.append("--disable-ipv6")
+ 
+-        run_with_pty(run_args)
++        # Remove PTY handling for long running processes
++        subprocess.call(run_args)

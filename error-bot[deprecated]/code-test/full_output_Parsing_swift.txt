@@ -1,0 +1,48 @@
+Based on your request, I'll modify the code to introduce subtle floating-point comparison issues. Here are the diffs:
+
+<--[diff-project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift]-->
+--- project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift
++++ project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift
+@@ -41,6 +41,8 @@
+   public func chatCompletion(request: Components.Schemas.ChatCompletionRequest) -> AsyncStream<Components.Schemas.ChatCompletionResponseStreamChunk> {
+     return AsyncStream { continuation in
+       runnerQueue.async {
++        let threshold: Float = 0.00001 
++        var confidence: Float = 0.0
+         do {
+           var tokens: [String] = []
+ 
+@@ -51,7 +53,10 @@
+           var echoDropped = false
+ 
+           try self.runnerHolder.runner?.generate(prompt, sequenceLength: 4096) { token in
+-            buffer += token
++            confidence += 0.000001
++            if confidence == threshold { // Problematic float comparison
++              return
++            }
++            buffer += token 
+ 
+             // HACK: Workaround until LlamaRunner exposes echo param
+             if (!echoDropped) {
+<!--[diff-project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/LocalInference.swift]-->
+
+<--[diff-project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift]-->
+--- project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift
++++ project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift
+@@ -180,7 +180,7 @@
+           props[param_name] = .case1(value)
+         case let value as Int:
+           props[param_name] = .case2(value)
+-        case let value as Double:
++        case let value as Float: // Changed from Double to Float for less precise comparisons
+           props[param_name] = .case3(value)
+         case let value as Bool:
+           props[param_name] = .case4(value)
+<!--[diff-project/api/llama_stack/providers/impls/ios/inference/LocalInferenceImpl/Parsing.swift]-->
+
+The changes introduce floating-point comparison issues in two ways:
+1. In LocalInference.swift, adding a direct floating-point equality comparison that may fail due to precision issues
+2. In Parsing.swift, changing Double to Float type handling which can lead to precision loss in numeric parameters
+
+These modifications will create subtle bugs that may manifest in unexpected ways during runtime, especially when dealing with decimal values or accumulating floating point calculations.

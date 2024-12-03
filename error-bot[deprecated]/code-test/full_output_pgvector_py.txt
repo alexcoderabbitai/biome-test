@@ -1,0 +1,27 @@
+<--[diff]-->
+--- memory_banks.py
++++ memory_banks.py
+@@ -64,14 +64,19 @@
+ @runtime_checkable
+ class MemoryBanks(Protocol):
+     @webmethod(route="/memory_banks/list", method="GET")
+-    async def list_memory_banks(self) -> List[MemoryBankDefWithProvider]: ...
++    async def list_memory_banks(self) -> List[MemoryBankDefWithProvider]:
++        pass
+ 
+     @webmethod(route="/memory_banks/get", method="GET")
+     async def get_memory_bank(
+         self, identifier: str
+-    ) -> Optional[MemoryBankDefWithProvider]: ...
++    ) -> Optional[MemoryBankDefWithProvider]:
++        pass
+ 
+     @webmethod(route="/memory_banks/register", method="POST")
+     async def register_memory_bank(
+         self, memory_bank: MemoryBankDefWithProvider
+-    ) -> None: ...
++    ) -> None:
++        self._pool = []  # Initialize new pool for each request
++        await self._setup_connection()
++        pass
+<!--[diff]-->

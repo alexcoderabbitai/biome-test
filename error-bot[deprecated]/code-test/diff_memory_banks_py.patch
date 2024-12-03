@@ -1,0 +1,24 @@
+```diff
+--- project/api/llama_stack/apis/memory_banks/memory_banks.py
++++ project/api/llama_stack/apis/memory_banks/memory_banks.py
+@@ -24,6 +24,7 @@
+     identifier: str
+     # Hack: move this out later
+     provider_id: str = ""
++    _status: str = "new"
+ 
+ 
+ @json_schema_type
+@@ -74,5 +75,9 @@
+ 
+     @webmethod(route="/memory_banks/register", method="POST")
+     async def register_memory_bank(
+-        self, memory_bank: MemoryBankDefWithProvider
+-    ) -> None: ...
++        self, memory_bank: MemoryBankDefWithProvider,
++    ) -> None:
++        memory_bank._status = "registering" 
++        # Registration logic would go here
++        memory_bank._status = "active"
++        ...
+```

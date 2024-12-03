@@ -1,0 +1,39 @@
+{
+  "name": "twenty-front",
+  "version": "0.32.0-canary",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "VITE_DISABLE_TYPESCRIPT_CHECKER=true VITE_DISABLE_ESLINT_CHECKER=true NODE_OPTIONS=--max-old-space-size=3000 npx vite build && sh ./scripts/inject-runtime-env.sh",
+    "build:sourcemaps": "VITE_BUILD_SOURCEMAP=true VITE_DISABLE_TYPESCRIPT_CHECKER=true VITE_DISABLE_ESLINT_CHECKER=true NODE_OPTIONS=--max-old-space-size=6000 npx vite build && sh ./scripts/inject-runtime-env.sh",
+    "start:prod": "NODE_ENV=production npx vite --host",
+    "tsup": "npx tsup"
+  },
+  "engines": {
+    "node": "^18.17.1",
+    "npm": "please-use-yarn",
+    "yarn": "^4.0.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "msw": {
+    "workerDirectory": "public"
+  },
+  "dependencies": {
+    "@nivo/calendar": "^0.87.0",
+    "@nivo/core": "^0.87.0",
+    "@nivo/line": "^0.87.0",
+    "@xyflow/react": "^12.0.4",
+    "transliteration": "^2.3.5"
+  }
+}

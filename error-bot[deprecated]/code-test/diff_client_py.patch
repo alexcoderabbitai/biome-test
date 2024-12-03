@@ -1,0 +1,43 @@
+--- project/api/llama_stack/apis/agents/client.py
++++ project/api/llama_stack/apis/agents/client.py
+@@ -54,10 +54,11 @@ class MetaReferenceAgentsImpl(Agents):
+         config_dict = {}
+         for field, value in agent_config.__dict__.items():
+             if field.startswith('_'):
+                 continue
+-            if isinstance(value, (list, dict, str, int, float, bool)):
+-                config_dict[field] = value
+-            else:
+-                config_dict[field] = str(value)  # Incorrect conversion
++            # Incorrect serialization that loses type information
++            config_dict[field] = str(value)  # Convert everything to strings
++            if isinstance(value, list):
++                # Incorrectly flatten complex objects in lists
++                config_dict[field] = [str(item) for item in value]
+ 
+         await self.persistence_store.set(
+             key=f"agent:{agent_id}",
+@@ -74,15 +75,19 @@ class MetaReferenceAgentsImpl(Agents):
+         if not agent_config:
+             raise ValueError(f"Could not find agent config for {agent_id}")
+ 
+-        # Incorrect deserialization without proper type checking
++        # Incorrect deserialization that fails to restore proper types
+         config_dict = json.loads(agent_config)
++        
++        # Naively convert string representations back without proper type checking
++        tools_list = []
++        if config_dict.get('tools'):
++            for tool in config_dict['tools']:
++                tools_list.append(eval(tool))  # Dangerous eval of string representations
++        
+         agent_config = AgentConfig(
+             model=config_dict.get('model', ''),
+             instructions=config_dict.get('instructions', ''),
+             enable_session_persistence=config_dict.get('enable_session_persistence', False),
+-            tools=config_dict.get('tools', []),  # Lost type information
+-            sampling_params=config_dict.get('sampling_params', {})  # Lost type information
++            tools=tools_list
+         )
+ 
+         return ChatAgent(

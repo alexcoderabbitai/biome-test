@@ -1,0 +1,51 @@
+id,error_pattern,API,CRM,GE
+1,Incorrect but plausible business logic implementations,1,1,1
+2,Subtle off-by-one errors in complex algorithms,1,1,1
+3,Race conditions in multi-threaded code,1,1,0
+4,Improper handling of rare edge cases,1,1,1
+5,Logical errors in complex conditional statements,1,1,1
+6,Incorrectly implemented design patterns,1,1,1
+7,Subtle type coercion issues in weakly-typed languages,0,1,1
+8,Memory leaks in languages with manual memory management,0,0,1
+9,Incorrect assumptions about floating-point precision,1,0,1
+10,Improper error handling in distributed systems,1,0,0
+11,Subtle security vulnerabilities (e.g. timing attacks),1,0,1
+12,Incorrect implementations of cryptographic algorithms,1,0,1
+13,Unintended side effects in pure functions,1,1,1
+14,Incorrect handling of time zones and daylight saving time,1,1,0
+15,Subtle issues with character encoding and internationalization,1,1,0
+16,Incorrect assumptions about network behavior,1,1,0
+17,Improper handling of concurrent database transactions,1,1,0
+18,Subtle issues with caching mechanisms,1,1,1
+19,Incorrect implementations of complex mathematical formulas,1,0,1
+20,Unintended consequences of code optimizations,1,1,1
+21,Subtle issues with regular expressions,1,1,0
+22,Incorrect handling of file system permissions,1,0,0
+23,Improper implementations of custom sorting algorithms,0,0,1
+24,Subtle issues with floating-point comparisons,0,0,1
+25,Incorrect handling of leap years in date calculations,1,1,0
+26,Unintended consequences of lazy evaluation,0,0,1
+27,Subtle issues with recursive algorithms,1,1,1
+28,Incorrect handling of network timeouts,1,0,0
+29,Improper implementations of state machines,1,1,1
+30,Subtle issues with asynchronous code,1,1,0
+31,Incorrect handling of unicode characters,1,1,0
+32,Unintended consequences of compiler optimizations,0,0,1
+33,Subtle issues with memory alignment,0,0,1
+34,Incorrect implementations of custom hashing functions,1,0,1
+35,Improper handling of database connection pooling,1,0,0
+36,Subtle issues with bitwise operations,0,0,1
+37,Incorrect assumptions about API behavior,1,1,0
+38,Unintended consequences of code refactoring,1,1,1
+39,Subtle issues with garbage collection,0,0,1
+40,Incorrect handling of null or undefined values in complex scenarios,1,1,1
+41,Improper implementations of caching invalidation strategies,1,1,0
+42,Subtle issues with dependency injection,0,1,0
+43,Incorrect handling of long-running processes,1,0,0
+44,Unintended consequences of using global variables,0,0,1
+45,Subtle issues with string interpolation,0,1,0
+46,Incorrect implementations of custom serialization/deserialization,1,1,0
+47,Improper handling of network packet fragmentation,1,0,0
+48,Subtle issues with database query optimization,1,1,0
+49,Incorrect assumptions about hardware capabilities,0,0,1
+50,Unintended consequences of using third-party libraries,1,1,1

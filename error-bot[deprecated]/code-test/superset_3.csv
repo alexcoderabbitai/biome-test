@@ -1,0 +1,1264 @@
+pr_url,pr_number,hunk_position,pr_title,pr_walkthrough,hunk_content,hunk_file_path,pr_hunk_paths,pr_hunk_bodies,pr_hunk_positions
+github.com/coderabbitai/Golden-PR-Dataset/pull/107,107,3-3,Automated Test: @eval-senior-reviewer-2-new-sonnet,"<!-- This is an auto-generated comment: summarize by coderabbit.ai -->
+<!-- walkthrough_start -->
+
+## Walkthrough
+
+The changes in the pull request primarily affect the `faiss.py` file within the `project/api/llama_stack/providers/impls/meta_reference/memory` directory. The `FaissIndex` class has been removed and replaced by an abstract class `EmbeddingIndex`, which includes two new abstract methods: `add_chunks` and `query`. The `FaissMemoryImpl` class has been updated to utilize the new `EmbeddingIndex` structure.
+
+Several new utility functions have been introduced, including `get_embedding_model` for loading sentence transformer models and `parse_data_url` for processing data URLs. The `content_from_data` function has been added to manage different MIME types and decode base64 data, while the `content_from_doc` function has been modified to support both URL and data URI formats using asynchronous HTTP requests.
+
+Additionally, the `make_overlapped_chunks` function has been implemented to generate overlapping text chunks for embedding. The `insert_documents` method in `BankWithIndex` has been revised to incorporate the new chunking and embedding logic, and the `query_documents` method has been enhanced for improved query processing and embedding generation. Overall, these changes reflect a restructured and modular approach to document embedding and processing.
+
+<!-- walkthrough_end --><!-- This is an auto-generated comment: resource warnings by coderabbit.ai -->
+
+> [!WARNING]
+> ## Review ran into problems
+> 
+> <details>
+> <summary>🔥 Problems</summary>
+> 
+> Git: Failed to clone repository. Please run the `@nehal-a2z full review` command to re-trigger a full review.
+> 
+> </details>
+
+<!-- end of auto-generated comment: resource warnings by coderabbit.ai --><!-- internal state start -->
+
+<!--
+
+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
+
+-->
+
+<!-- internal state end --><!-- tips_start -->
+
+---
+
+
+
+<details>
+<summary>🪧 Tips</summary>
+
+### Chat
+
+There are 3 ways to chat with [CodeRabbit](https://coderabbit.ai):
+
+> ‼️ **IMPORTANT**
+> Auto-reply has been disabled for this repository in the CodeRabbit settings. The CodeRabbit bot will not respond to your replies unless it is explicitly tagged.
+- Files and specific lines of code (under the ""Files changed"" tab): Tag `@nehal-a2z` in a new review comment at the desired location with your query. Examples:
+  - `@nehal-a2z generate unit testing code for this file.`
+  -	`@nehal-a2z modularize this function.`
+- PR comments: Tag `@nehal-a2z` in a new PR comment to ask questions about the PR branch. For the best results, please provide a very specific query, as very limited context is provided in this mode. Examples:
+  - `@nehal-a2z gather interesting stats about this repository and render them as a table. Additionally, render a pie chart showing the language distribution in the codebase.`
+  - `@nehal-a2z read src/utils.ts and generate unit testing code.`
+  - `@nehal-a2z read the files in the src/scheduler package and generate a class diagram using mermaid and a README in the markdown format.`
+  - `@nehal-a2z help me debug CodeRabbit configuration file.`
+
+Note: Be mindful of the bot's finite context window. It's strongly recommended to break down tasks such as reading entire modules into smaller chunks. For a focused discussion, use review comments to chat about specific files and their changes, instead of using the PR comments.
+
+### CodeRabbit Commands (Invoked using PR comments)
+
+- `@nehal-a2z pause` to pause the reviews on a PR.
+- `@nehal-a2z resume` to resume the paused reviews.
+- `@nehal-a2z review` to trigger an incremental review. This is useful when automatic reviews are disabled for the repository.
+- `@nehal-a2z full review` to do a full review from scratch and review all the files again.
+- `@nehal-a2z summary` to regenerate the summary of the PR.
+- `@nehal-a2z resolve` resolve all the CodeRabbit review comments.
+- `@nehal-a2z configuration` to show the current CodeRabbit configuration for the repository.
+- `@nehal-a2z help` to get help.
+
+### Other keywords and placeholders
+
+- Add `@nehal-a2z ignore` anywhere in the PR description to prevent this PR from being reviewed.
+- Add `@nehal-a2z summary` or `@coderabbitai summary` to generate the high-level summary at a specific location in the PR description.
+- Add `@nehal-a2z` or `@coderabbitai` anywhere in the PR title to generate the title automatically.
+
+### CodeRabbit Configuration File (`.coderabbit.yaml`)
+
+- You can programmatically configure CodeRabbit by adding a `.coderabbit.yaml` file to the root of your repository.
+- Please see the [configuration documentation](https://docs.coderabbit.ai/guides/configure-coderabbit) for more information.
+- If your editor has YAML language server enabled, you can add the path at the top of this file to enable auto-completion and validation: `# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json`
+
+### Documentation and Community
+
+- Visit our [Documentation](https://coderabbit.ai/docs) for detailed information on how to use CodeRabbit.
+- Join our [Discord Community](http://discord.gg/coderabbit) to get help, request features, and share feedback.
+- Follow us on [X/Twitter](https://twitter.com/coderabbitai) for updates and announcements.
+
+</details>
+
+<!-- tips_end -->"," #
+ # This source code is licensed under the terms described in the LICENSE file in
+ # the root directory of this source tree.
+-
+-import logging
+-
++import base64
++import io
++import re
++from abc import ABC, abstractmethod
++from dataclasses import dataclass
+ from typing import Any, Dict, List, Optional
++from urllib.parse import unquote
+ 
+-import faiss
++import chardet
++import httpx
+ import numpy as np
+ from numpy.typing import NDArray
++from pypdf import PdfReader
++from termcolor import cprint
+ 
+ from llama_models.llama3.api.datatypes import *  # noqa: F403
++from llama_models.llama3.api.tokenizer import Tokenizer
+ 
+ from llama_stack.apis.memory import *  # noqa: F403
+-from llama_stack.providers.datatypes import MemoryBanksProtocolPrivate
+-
+-from llama_stack.providers.utils.memory.vector_store import (
+-    ALL_MINILM_L6_V2_DIMENSION,
+-    BankWithIndex,
+-    EmbeddingIndex,
+-)
+-from llama_stack.providers.utils.telemetry import tracing
+-
+-from .config import FaissImplConfig
+-
+-logger = logging.getLogger(__name__)
+ 
++ALL_MINILM_L6_V2_DIMENSION = 384
++
++EMBEDDING_MODELS = {}
++
++
++def get_embedding_model(model: str) -> ""SentenceTransformer"":
++    global EMBEDDING_MODELS
++
++    loaded_model = EMBEDDING_MODELS.get(model)
++    if loaded_model is not None:
++        return loaded_model
++
++    print(f""Loading sentence transformer for {model}..."")
++    from sentence_transformers import SentenceTransformer
++
++    loaded_model = SentenceTransformer(model)
++    EMBEDDING_MODELS[model] = loaded_model
++    return loaded_model
++
++
++def parse_data_url(data_url: str):
++    data_url_pattern = re.compile(
++        r""^""
++        r""data:""
++        r""(?P<mimetype>[\w/\-+.]+)""
++        r""(?P<charset>;charset=(?P<encoding>[\w-]+))?""
++        r""(?P<base64>;base64)?""
++        r"",(?P<data>.*)""
++        r""$"",
++        re.DOTALL,
++    )
++    match = data_url_pattern.match(data_url)
++    if not match:
++        raise ValueError(""Invalid Data URL format"")
++
++    parts = match.groupdict()
++    parts[""is_base64""] = bool(parts[""base64""])
++    return parts
++
++
++def content_from_data(data_url: str) -> str:
++    parts = parse_data_url(data_url)
++    data = parts[""data""]
++
++    if parts[""is_base64""]:
++        data = base64.b64decode(data)
++    else:
++        data = unquote(data)
++        encoding = parts[""encoding""] or ""utf-8""
++        data = data.encode(encoding)
++
++    encoding = parts[""encoding""]
++    if not encoding:
++        detected = chardet.detect(data)
++        encoding = detected[""encoding""]
++
++    mime_type = parts[""mimetype""]
++    mime_category = mime_type.split(""/"")[0]
++    if mime_category == ""text"":
++        # For text-based files (including CSV, MD)
++        return data.decode(encoding)
++
++    elif mime_type == ""application/pdf"":
++        # For PDF and DOC/DOCX files, we can't reliably convert to string)
++        pdf_bytes = io.BytesIO(data)
++        pdf_reader = PdfReader(pdf_bytes)
++        return ""\n"".join([page.extract_text() for page in pdf_reader.pages])
++
++    else:
++        cprint(""Could not extract content from data_url properly."", color=""red"")
++        return """"
++
++
++async def content_from_doc(doc: MemoryBankDocument) -> str:
++    if isinstance(doc.content, URL):
++        if doc.content.uri.startswith(""data:""):
++            return content_from_data(doc.content.uri)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content.uri)
++                return r.text
++
++    pattern = re.compile(""^(https?://|file://|data:)"")
++    if pattern.match(doc.content):
++        if doc.content.startswith(""data:""):
++            return content_from_data(doc.content)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content)
++                return r.text
++
++    return interleaved_text_media_as_str(doc.content)
++
++
++def make_overlapped_chunks(
++    document_id: str, text: str, window_len: int, overlap_len: int
++) -> List[Chunk]:
++    tokenizer = Tokenizer.get_instance()
++    tokens = tokenizer.encode(text, bos=False, eos=False)
++
++    chunks = []
++    for i in range(0, len(tokens), window_len - overlap_len):
++        toks = tokens[i : i + window_len]
++        chunk = tokenizer.decode(toks)
++        chunks.append(
++            Chunk(content=chunk, token_count=len(toks), document_id=document_id)
++        )
+ 
+-class FaissIndex(EmbeddingIndex):
+-    id_by_index: Dict[int, str]
+-    chunk_by_index: Dict[int, str]
++    return chunks
+ 
+-    def __init__(self, dimension: int):
+-        self.index = faiss.IndexFlatL2(dimension)
+-        self.id_by_index = {}
+-        self.chunk_by_index = {}
+ 
+-    @tracing.span(name=""add_chunks"")
++class EmbeddingIndex(ABC):
++    @abstractmethod
+     async def add_chunks(self, chunks: List[Chunk], embeddings: NDArray):
+-        indexlen = len(self.id_by_index)
+-        for i, chunk in enumerate(chunks):
+-            self.chunk_by_index[indexlen + i] = chunk
+-            self.id_by_index[indexlen + i] = chunk.document_id
+-
+-        self.index.add(np.array(embeddings).astype(np.float32))
++        raise NotImplementedError()
+ 
++    @abstractmethod
+     async def query(self, embedding: NDArray, k: int) -> QueryDocumentsResponse:
+-        distances, indices = self.index.search(
+-            embedding.reshape(1, -1).astype(np.float32), k
+-        )
+-
+-        chunks = []
+-        scores = []
+-        for d, i in zip(distances[0], indices[0]):
+-            if i < 0:
+-                continue
+-            chunks.append(self.chunk_by_index[int(i)])
+-            scores.append(1.0 / float(d))
+-
+-        return QueryDocumentsResponse(chunks=chunks, scores=scores)
++        raise NotImplementedError()
+ 
+ 
+-class FaissMemoryImpl(Memory, MemoryBanksProtocolPrivate):
+-    def __init__(self, config: FaissImplConfig) -> None:
+-        self.config = config
+-        self.cache = {}
+-
+-    async def initialize(self) -> None: ...
+-
+-    async def shutdown(self) -> None: ...
+-
+-    async def register_memory_bank(
+-        self,
+-        memory_bank: MemoryBankDef,
+-    ) -> None:
+-        assert (
+-            memory_bank.type == MemoryBankType.vector.value
+-        ), f""Only vector banks are supported {memory_bank.type}""
+-
+-        index = BankWithIndex(
+-            bank=memory_bank, index=FaissIndex(ALL_MINILM_L6_V2_DIMENSION)
+-        )
+-        self.cache[memory_bank.identifier] = index
+-
+-    async def list_memory_banks(self) -> List[MemoryBankDef]:
+-        return [i.bank for i in self.cache.values()]
++@dataclass
++class BankWithIndex:
++    bank: MemoryBankDef
++    index: EmbeddingIndex
+ 
+     async def insert_documents(
+         self,
+-        bank_id: str,
+         documents: List[MemoryBankDocument],
+-        ttl_seconds: Optional[int] = None,
+     ) -> None:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        await index.insert_documents(documents)
++        model = get_embedding_model(self.bank.embedding_model)
++        for doc in documents:
++            content = await content_from_doc(doc)
++            chunks = make_overlapped_chunks(
++                doc.document_id,
++                content,
++                self.bank.chunk_size_in_tokens,
++                self.bank.overlap_size_in_tokens
++                or (self.bank.chunk_size_in_tokens // 4),
++            )
++            if not chunks:
++                continue
++            embeddings = model.encode([x.content for x in chunks]).astype(np.float32)
++            # Unstable order of chunks
++            chunks = sorted(chunks, key=lambda x: hash(x.content))
++            
++            await self.index.add_chunks(chunks, embeddings)
+ 
+     async def query_documents(
+         self,
+-        bank_id: str,
+         query: InterleavedTextMedia,
+         params: Optional[Dict[str, Any]] = None,
+     ) -> QueryDocumentsResponse:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        return await index.query_documents(query, params)
++        if params is None:
++            params = {}
++        k = params.get(""max_chunks"", 3)
++
++        def _process(c) -> str:
++            if isinstance(c, str):
++                return c
++            else:
++                return ""<media>""
++
++        if isinstance(query, list):
++            query_str = "" "".join([_process(c) for c in query])
++        else:
++            query_str = _process(query)
++
++        model = get_embedding_model(self.bank.embedding_model)
++        query_vector = model.encode([query_str])[0].astype(np.float32)
++        return await self.index.query(query_vector, k)
+",project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py,"['project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py']","['_:warning: Potential issue_\n\n**Consider adding error handling for model loading.**\n\nThe model loading function should handle potential exceptions that might occur during model initialization.\n\n```diff\n def get_embedding_model(model: str) -> ""SentenceTransformer"":\n     global EMBEDDING_MODELS\n \n     loaded_model = EMBEDDING_MODELS.get(model)\n     if loaded_model is not None:\n         return loaded_model\n \n     print(f""Loading sentence transformer for {model}..."")\n-    from sentence_transformers import SentenceTransformer\n+    try:\n+        from sentence_transformers import SentenceTransformer\n \n-    loaded_model = SentenceTransformer(model)\n-    EMBEDDING_MODELS[model] = loaded_model\n-    return loaded_model\n+        loaded_model = SentenceTransformer(model)\n+        EMBEDDING_MODELS[model] = loaded_model\n+        return loaded_model\n+    except Exception as e:\n+        raise RuntimeError(f""Failed to load model {model}: {str(e)}"")\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef get_embedding_model(model: str) -> ""SentenceTransformer"":\n    global EMBEDDING_MODELS\n\n    loaded_model = EMBEDDING_MODELS.get(model)\n    if loaded_model is not None:\n        return loaded_model\n\n    print(f""Loading sentence transformer for {model}..."")\n    try:\n        from sentence_transformers import SentenceTransformer\n\n        loaded_model = SentenceTransformer(model)\n        EMBEDDING_MODELS[model] = loaded_model\n        return loaded_model\n    except Exception as e:\n        raise RuntimeError(f""Failed to load model {model}: {str(e)}"")\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Consider adding validation for chunk parameters.**\n\nThe chunking function should validate its input parameters to prevent invalid configurations.\n\n```diff\n def make_overlapped_chunks(\n     document_id: str, text: str, window_len: int, overlap_len: int\n ) -> List[Chunk]:\n+    if window_len <= 0:\n+        raise ValueError(""window_len must be positive"")\n+    if overlap_len < 0:\n+        raise ValueError(""overlap_len cannot be negative"")\n+    if overlap_len >= window_len:\n+        raise ValueError(""overlap_len must be less than window_len"")\n+    if not text:\n+        return []\n+\n     tokenizer = Tokenizer.get_instance()\n     tokens = tokenizer.encode(text, bos=False, eos=False)\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef make_overlapped_chunks(\n    document_id: str, text: str, window_len: int, overlap_len: int\n) -> List[Chunk]:\n    if window_len <= 0:\n        raise ValueError(""window_len must be positive"")\n    if overlap_len < 0:\n        raise ValueError(""overlap_len cannot be negative"")\n    if overlap_len >= window_len:\n        raise ValueError(""overlap_len must be less than window_len"")\n    if not text:\n        return []\n\n    tokenizer = Tokenizer.get_instance()\n    tokens = tokenizer.encode(text, bos=False, eos=False)\n\n    chunks = []\n    for i in range(0, len(tokens), window_len - overlap_len):\n        toks = tokens[i : i + window_len]\n        chunk = tokenizer.decode(toks)\n        chunks.append(\n            Chunk(content=chunk, token_count=len(toks), document_id=document_id)\n        )\n\n    return chunks\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Consider adding validation for bank configuration.**\n\nThe `BankWithIndex` class should validate the bank configuration parameters during initialization.\n\n```diff\n @dataclass\n class BankWithIndex:\n     bank: MemoryBankDef\n     index: EmbeddingIndex\n+    \n+    def __post_init__(self):\n+        if not self.bank.embedding_model:\n+            raise ValueError(""embedding_model must be specified"")\n+        if self.bank.chunk_size_in_tokens <= 0:\n+            raise ValueError(""chunk_size_in_tokens must be positive"")\n+        if self.bank.overlap_size_in_tokens is not None and self.bank.overlap_size_in_tokens < 0:\n+            raise ValueError(""overlap_size_in_tokens cannot be negative"")\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\n@dataclass\nclass BankWithIndex:\n    bank: MemoryBankDef\n    index: EmbeddingIndex\n    \n    def __post_init__(self):\n        if not self.bank.embedding_model:\n            raise ValueError(""embedding_model must be specified"")\n        if self.bank.chunk_size_in_tokens <= 0:\n            raise ValueError(""chunk_size_in_tokens must be positive"")\n        if self.bank.overlap_size_in_tokens is not None and self.bank.overlap_size_in_tokens < 0:\n            raise ValueError(""overlap_size_in_tokens cannot be negative"")\n\n    async def insert_documents(\n        self,\n        documents: List[MemoryBankDocument],\n    ) -> None:\n        model = get_embedding_model(self.bank.embedding_model)\n        for doc in documents:\n            content = await content_from_doc(doc)\n            chunks = make_overlapped_chunks(\n                doc.document_id,\n                content,\n                self.bank.chunk_size_in_tokens,\n                self.bank.overlap_size_in_tokens\n                or (self.bank.chunk_size_in_tokens // 4),\n            )\n            if not chunks:\n                continue\n            embeddings = model.encode([x.content for x in chunks]).astype(np.float32)\n            # Unstable order of chunks\n            chunks = sorted(chunks, key=lambda x: hash(x.content))\n            \n            await self.index.add_chunks(chunks, embeddings)\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Add input validation and improve error handling in query_documents.**\n\nThe query method should validate its inputs and handle potential errors during embedding generation.\n\n```diff\n     async def query_documents(\n         self,\n         query: InterleavedTextMedia,\n         params: Optional[Dict[str, Any]] = None,\n     ) -> QueryDocumentsResponse:\n+        if query is None:\n+            raise ValueError(""query cannot be None"")\n+\n         if params is None:\n             params = {}\n-        k = params.get(""max_chunks"", 3)\n+        \n+        try:\n+            k = int(params.get(""max_chunks"", 3))\n+            if k <= 0:\n+                raise ValueError(""max_chunks must be positive"")\n+        except (TypeError, ValueError) as e:\n+            raise ValueError(f""Invalid max_chunks parameter: {str(e)}"")\n\n         def _process(c) -> str:\n             if isinstance(c, str):\n                 return c\n             else:\n                 return ""<media>""\n\n         if isinstance(query, list):\n             query_str = "" "".join([_process(c) for c in query])\n         else:\n             query_str = _process(query)\n\n-        model = get_embedding_model(self.bank.embedding_model)\n-        query_vector = model.encode([query_str])[0].astype(np.float32)\n+        try:\n+            model = get_embedding_model(self.bank.embedding_model)\n+            query_vector = model.encode([query_str])[0].astype(np.float32)\n+        except Exception as e:\n+            raise RuntimeError(f""Failed to generate query embedding: {str(e)}"")\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\n    async def query_documents(\n        self,\n        query: InterleavedTextMedia,\n        params: Optional[Dict[str, Any]] = None,\n    ) -> QueryDocumentsResponse:\n        if query is None:\n            raise ValueError(""query cannot be None"")\n\n        if params is None:\n            params = {}\n        \n        try:\n            k = int(params.get(""max_chunks"", 3))\n            if k <= 0:\n                raise ValueError(""max_chunks must be positive"")\n        except (TypeError, ValueError) as e:\n            raise ValueError(f""Invalid max_chunks parameter: {str(e)}"")\n\n        def _process(c) -> str:\n            if isinstance(c, str):\n                return c\n            else:\n                return ""<media>""\n\n        if isinstance(query, list):\n            query_str = "" "".join([_process(c) for c in query])\n        else:\n            query_str = _process(query)\n\n        try:\n            model = get_embedding_model(self.bank.embedding_model)\n            query_vector = model.encode([query_str])[0].astype(np.float32)\n        except Exception as e:\n            raise RuntimeError(f""Failed to generate query embedding: {str(e)}"")\n        return await self.index.query(query_vector, k)\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Add timeout and retries for HTTP requests.**\n\nThe HTTP client should have proper timeout settings and retry logic for better reliability.\n\n```diff\n async def content_from_doc(doc: MemoryBankDocument) -> str:\n+    timeout = httpx.Timeout(10.0, connect=5.0)\n+    async with httpx.AsyncClient(timeout=timeout) as client:\n+        async def fetch_with_retry(url: str, max_retries: int = 3) -> str:\n+            for attempt in range(max_retries):\n+                try:\n+                    r = await client.get(url)\n+                    r.raise_for_status()\n+                    return r.text\n+                except httpx.HTTPError as e:\n+                    if attempt == max_retries - 1:\n+                        raise ValueError(f""Failed to fetch content: {str(e)}"")\n+                    await asyncio.sleep(1 * (attempt + 1))\n+\n     if isinstance(doc.content, URL):\n         if doc.content.uri.startswith(""data:""):\n             return content_from_data(doc.content.uri)\n         else:\n-            async with httpx.AsyncClient() as client:\n-                r = await client.get(doc.content.uri)\n-                return r.text\n+            return await fetch_with_retry(doc.content.uri)\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Add error handling for file operations and improve MIME type handling.**\n\nThe content extraction should handle potential errors during file operations and provide more robust MIME type handling.\n\n```diff\n def content_from_data(data_url: str) -> str:\n-    parts = parse_data_url(data_url)\n-    data = parts[""data""]\n+    try:\n+        parts = parse_data_url(data_url)\n+        data = parts[""data""]\n \n-    if parts[""is_base64""]:\n-        data = base64.b64decode(data)\n-    else:\n-        data = unquote(data)\n-        encoding = parts[""encoding""] or ""utf-8""\n-        data = data.encode(encoding)\n+        if parts[""is_base64""]:\n+            try:\n+                data = base64.b64decode(data)\n+            except Exception as e:\n+                raise ValueError(f""Invalid base64 data: {str(e)}"")\n+        else:\n+            data = unquote(data)\n+            encoding = parts[""encoding""] or ""utf-8""\n+            try:\n+                data = data.encode(encoding)\n+            except LookupError:\n+                raise ValueError(f""Unsupported encoding: {encoding}"")\n \n-    encoding = parts[""encoding""]\n-    if not encoding:\n-        detected = chardet.detect(data)\n-        encoding = detected[""encoding""]\n+        encoding = parts[""encoding""]\n+        if not encoding:\n+            detected = chardet.detect(data)\n+            encoding = detected[""encoding""] or ""utf-8""\n \n-    mime_type = parts[""mimetype""]\n-    mime_category = mime_type.split(""/"")[0]\n+        mime_type = parts[""mimetype""].lower()\n+        mime_category = mime_type.split(""/"")[0]\n \n-    if mime_category == ""text"":\n-        return data.decode(encoding)\n-    elif mime_type == ""application/pdf"":\n-        pdf_bytes = io.BytesIO(data)\n-        pdf_reader = PdfReader(pdf_bytes)\n-        return ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n-    else:\n-        cprint(""Could not extract content from data_url properly."", color=""red"")\n-        return """"\n+        if mime_category == ""text"":\n+            try:\n+                return data.decode(encoding)\n+            except UnicodeDecodeError as e:\n+                raise ValueError(f""Failed to decode text content: {str(e)}"")\n+        elif mime_type == ""application/pdf"":\n+            try:\n+                pdf_bytes = io.BytesIO(data)\n+                pdf_reader = PdfReader(pdf_bytes)\n+                return ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n+            except Exception as e:\n+                raise ValueError(f""Failed to process PDF content: {str(e)}"")\n+        else:\n+            cprint(f""Unsupported MIME type: {mime_type}"", color=""red"")\n+            return """"\n+    except Exception as e:\n+        cprint(f""Error processing data URL: {str(e)}"", color=""red"")\n+        raise\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef content_from_data(data_url: str) -> str:\n    try:\n        parts = parse_data_url(data_url)\n        data = parts[""data""]\n\n        if parts[""is_base64""]:\n            try:\n                data = base64.b64decode(data)\n            except Exception as e:\n                raise ValueError(f""Invalid base64 data: {str(e)}"")\n        else:\n            data = unquote(data)\n            encoding = parts[""encoding""] or ""utf-8""\n            try:\n                data = data.encode(encoding)\n            except LookupError:\n                raise ValueError(f""Unsupported encoding: {encoding}"")\n\n        encoding = parts[""encoding""]\n        if not encoding:\n            detected = chardet.detect(data)\n            encoding = detected[""encoding""] or ""utf-8""\n\n        mime_type = parts[""mimetype""].lower()\n        mime_category = mime_type.split(""/"")[0]\n\n        if mime_category == ""text"":\n            try:\n                return data.decode(encoding)\n            except UnicodeDecodeError as e:\n                raise ValueError(f""Failed to decode text content: {str(e)}"")\n        elif mime_type == ""application/pdf"":\n            try:\n                pdf_bytes = io.BytesIO(data)\n                pdf_reader = PdfReader(pdf_bytes)\n                return ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n            except Exception as e:\n                raise ValueError(f""Failed to process PDF content: {str(e)}"")\n        else:\n            cprint(f""Unsupported MIME type: {mime_type}"", color=""red"")\n            return """"\n    except Exception as e:\n        cprint(f""Error processing data URL: {str(e)}"", color=""red"")\n        raise\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->']","[57, 151, 244, 274, 131, 111]"
+github.com/coderabbitai/Golden-PR-Dataset/pull/69,69,3-3,Automated Test: @eval-junior-reviewer-1-new-sonnet,"<!-- This is an auto-generated comment: summarize by coderabbit.ai -->
+<!-- walkthrough_start -->
+
+## Walkthrough
+
+The changes in the pull request primarily affect the `faiss.py` file within the project. A significant restructuring has occurred, including the removal of the `FaissIndex` class and the introduction of an abstract `EmbeddingIndex` class, which establishes two abstract methods: `add_chunks` and `query`. This shift aims to enhance the abstraction in embedding management.
+
+New functions have been added to facilitate various operations, such as `get_embedding_model` for loading and caching sentence transformer models, `parse_data_url` for validating data URLs, and `content_from_data` for extracting content from different data types, including base64 and PDFs. Additionally, the `content_from_doc` function has been introduced for retrieving content from documents via data URLs and HTTP requests.
+
+The `make_overlapped_chunks` function is also included, which generates overlapping text chunks from documents. A new data class, `BankWithIndex`, has been defined to encapsulate a memory bank and its embedding index. The `FaissMemoryImpl` class has undergone substantial modifications, integrating new chunk processing logic and updating its methods to align with the new structure for document insertion and query processing. Overall, these changes represent a comprehensive overhaul of the embedding handling logic.
+
+<!-- walkthrough_end --><!-- This is an auto-generated comment: resource warnings by coderabbit.ai -->
+
+> [!WARNING]
+> ## Review ran into problems
+> 
+> <details>
+> <summary>🔥 Problems</summary>
+> 
+> Git: Failed to clone repository. Please run the `@nehal-a2z full review` command to re-trigger a full review.
+> 
+> </details>
+
+<!-- end of auto-generated comment: resource warnings by coderabbit.ai --><!-- internal state start -->
+
+<!--
+
+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=
+
+-->
+
+<!-- internal state end --><!-- tips_start -->
+
+---
+
+
+
+<details>
+<summary>🪧 Tips</summary>
+
+### Chat
+
+There are 3 ways to chat with [CodeRabbit](https://coderabbit.ai):
+
+> ‼️ **IMPORTANT**
+> Auto-reply has been disabled for this repository in the CodeRabbit settings. The CodeRabbit bot will not respond to your replies unless it is explicitly tagged.
+- Files and specific lines of code (under the ""Files changed"" tab): Tag `@nehal-a2z` in a new review comment at the desired location with your query. Examples:
+  - `@nehal-a2z generate unit testing code for this file.`
+  -	`@nehal-a2z modularize this function.`
+- PR comments: Tag `@nehal-a2z` in a new PR comment to ask questions about the PR branch. For the best results, please provide a very specific query, as very limited context is provided in this mode. Examples:
+  - `@nehal-a2z gather interesting stats about this repository and render them as a table. Additionally, render a pie chart showing the language distribution in the codebase.`
+  - `@nehal-a2z read src/utils.ts and generate unit testing code.`
+  - `@nehal-a2z read the files in the src/scheduler package and generate a class diagram using mermaid and a README in the markdown format.`
+  - `@nehal-a2z help me debug CodeRabbit configuration file.`
+
+Note: Be mindful of the bot's finite context window. It's strongly recommended to break down tasks such as reading entire modules into smaller chunks. For a focused discussion, use review comments to chat about specific files and their changes, instead of using the PR comments.
+
+### CodeRabbit Commands (Invoked using PR comments)
+
+- `@nehal-a2z pause` to pause the reviews on a PR.
+- `@nehal-a2z resume` to resume the paused reviews.
+- `@nehal-a2z review` to trigger an incremental review. This is useful when automatic reviews are disabled for the repository.
+- `@nehal-a2z full review` to do a full review from scratch and review all the files again.
+- `@nehal-a2z summary` to regenerate the summary of the PR.
+- `@nehal-a2z resolve` resolve all the CodeRabbit review comments.
+- `@nehal-a2z configuration` to show the current CodeRabbit configuration for the repository.
+- `@nehal-a2z help` to get help.
+
+### Other keywords and placeholders
+
+- Add `@nehal-a2z ignore` anywhere in the PR description to prevent this PR from being reviewed.
+- Add `@nehal-a2z summary` or `@coderabbitai summary` to generate the high-level summary at a specific location in the PR description.
+- Add `@nehal-a2z` or `@coderabbitai` anywhere in the PR title to generate the title automatically.
+
+### CodeRabbit Configuration File (`.coderabbit.yaml`)
+
+- You can programmatically configure CodeRabbit by adding a `.coderabbit.yaml` file to the root of your repository.
+- Please see the [configuration documentation](https://docs.coderabbit.ai/guides/configure-coderabbit) for more information.
+- If your editor has YAML language server enabled, you can add the path at the top of this file to enable auto-completion and validation: `# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json`
+
+### Documentation and Community
+
+- Visit our [Documentation](https://coderabbit.ai/docs) for detailed information on how to use CodeRabbit.
+- Join our [Discord Community](http://discord.gg/coderabbit) to get help, request features, and share feedback.
+- Follow us on [X/Twitter](https://twitter.com/coderabbitai) for updates and announcements.
+
+</details>
+
+<!-- tips_end -->"," #
+ # This source code is licensed under the terms described in the LICENSE file in
+ # the root directory of this source tree.
+-
+-import logging
+-
++import base64
++import io
++import re
++from abc import ABC, abstractmethod
++from dataclasses import dataclass
+ from typing import Any, Dict, List, Optional
++from urllib.parse import unquote
+ 
+-import faiss
++import chardet
++import httpx
+ import numpy as np
+ from numpy.typing import NDArray
++from pypdf import PdfReader
++from termcolor import cprint
+ 
+ from llama_models.llama3.api.datatypes import *  # noqa: F403
++from llama_models.llama3.api.tokenizer import Tokenizer
+ 
+ from llama_stack.apis.memory import *  # noqa: F403
+-from llama_stack.providers.datatypes import MemoryBanksProtocolPrivate
+-
+-from llama_stack.providers.utils.memory.vector_store import (
+-    ALL_MINILM_L6_V2_DIMENSION,
+-    BankWithIndex,
+-    EmbeddingIndex,
+-)
+-from llama_stack.providers.utils.telemetry import tracing
+-
+-from .config import FaissImplConfig
+-
+-logger = logging.getLogger(__name__)
+ 
++ALL_MINILM_L6_V2_DIMENSION = 384
++
++EMBEDDING_MODELS = {}
++
++
++def get_embedding_model(model: str) -> ""SentenceTransformer"":
++    global EMBEDDING_MODELS
++
++    loaded_model = EMBEDDING_MODELS.get(model)
++    if loaded_model is not None:
++        return loaded_model
++
++    print(f""Loading sentence transformer for {model}..."")
++    from sentence_transformers import SentenceTransformer
++
++    loaded_model = SentenceTransformer(model)
++    EMBEDDING_MODELS[model] = loaded_model
++    return loaded_model
++
++
++def parse_data_url(data_url: str):
++    data_url_pattern = re.compile(
++        r""^""
++        r""data:""
++        r""(?P<mimetype>[\w/\-+.]+)""
++        r""(?P<charset>;charset=(?P<encoding>[\w-]+))?""
++        r""(?P<base64>;base64)?""
++        r"",(?P<data>.*)""
++        r""$"",
++        re.DOTALL,
++    )
++    match = data_url_pattern.match(data_url)
++    if not match:
++        raise ValueError(""Invalid Data URL format"")
++
++    parts = match.groupdict()
++    parts[""is_base64""] = bool(parts[""base64""])
++    return parts
++
++
++def content_from_data(data_url: str) -> str:
++    parts = parse_data_url(data_url)
++    data = parts[""data""]
++
++    if parts[""is_base64""]:
++        data = base64.b64decode(data)
++    else:
++        data = unquote(data)
++        encoding = parts[""encoding""] or ""utf-8""
++        data = data.encode(encoding)
++
++    encoding = parts[""encoding""]
++    if not encoding:
++        detected = chardet.detect(data)
++        encoding = detected[""encoding""]
++
++    mime_type = parts[""mimetype""]
++    mime_category = mime_type.split(""/"")[0]
++    if mime_category == ""text"":
++        # For text-based files (including CSV, MD)
++        return data.decode(encoding)
++
++    elif mime_type == ""application/pdf"":
++        # For PDF and DOC/DOCX files, we can't reliably convert to string)
++        pdf_bytes = io.BytesIO(data)
++        pdf_reader = PdfReader(pdf_bytes)
++        return ""\n"".join([page.extract_text() for page in pdf_reader.pages])
++
++    else:
++        cprint(""Could not extract content from data_url properly."", color=""red"")
++        return """"
++
++
++async def content_from_doc(doc: MemoryBankDocument) -> str:
++    if isinstance(doc.content, URL):
++        if doc.content.uri.startswith(""data:""):
++            return content_from_data(doc.content.uri)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content.uri)
++                return r.text
++
++    pattern = re.compile(""^(https?://|file://|data:)"")
++    if pattern.match(doc.content):
++        if doc.content.startswith(""data:""):
++            return content_from_data(doc.content)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content)
++                return r.text
++
++    return interleaved_text_media_as_str(doc.content)
++
++
++def make_overlapped_chunks(
++    document_id: str, text: str, window_len: int, overlap_len: int
++) -> List[Chunk]:
++    tokenizer = Tokenizer.get_instance()
++    tokens = tokenizer.encode(text, bos=False, eos=False)
++
++    chunks = []
++    for i in range(0, len(tokens), window_len - overlap_len):
++        toks = tokens[i : i + window_len]
++        chunk = tokenizer.decode(toks)
++        chunks.append(
++            Chunk(content=chunk, token_count=len(toks), document_id=document_id)
++        )
+ 
+-class FaissIndex(EmbeddingIndex):
+-    id_by_index: Dict[int, str]
+-    chunk_by_index: Dict[int, str]
++    return chunks
+ 
+-    def __init__(self, dimension: int):
+-        self.index = faiss.IndexFlatL2(dimension)
+-        self.id_by_index = {}
+-        self.chunk_by_index = {}
+ 
+-    @tracing.span(name=""add_chunks"")
++class EmbeddingIndex(ABC):
++    @abstractmethod
+     async def add_chunks(self, chunks: List[Chunk], embeddings: NDArray):
+-        indexlen = len(self.id_by_index)
+-        for i, chunk in enumerate(chunks):
+-            self.chunk_by_index[indexlen + i] = chunk
+-            self.id_by_index[indexlen + i] = chunk.document_id
+-
+-        self.index.add(np.array(embeddings).astype(np.float32))
++        raise NotImplementedError()
+ 
++    @abstractmethod
+     async def query(self, embedding: NDArray, k: int) -> QueryDocumentsResponse:
+-        distances, indices = self.index.search(
+-            embedding.reshape(1, -1).astype(np.float32), k
+-        )
+-
+-        chunks = []
+-        scores = []
+-        for d, i in zip(distances[0], indices[0]):
+-            if i < 0:
+-                continue
+-            chunks.append(self.chunk_by_index[int(i)])
+-            scores.append(1.0 / float(d))
+-
+-        return QueryDocumentsResponse(chunks=chunks, scores=scores)
++        raise NotImplementedError()
+ 
+ 
+-class FaissMemoryImpl(Memory, MemoryBanksProtocolPrivate):
+-    def __init__(self, config: FaissImplConfig) -> None:
+-        self.config = config
+-        self.cache = {}
+-
+-    async def initialize(self) -> None: ...
+-
+-    async def shutdown(self) -> None: ...
+-
+-    async def register_memory_bank(
+-        self,
+-        memory_bank: MemoryBankDef,
+-    ) -> None:
+-        assert (
+-            memory_bank.type == MemoryBankType.vector.value
+-        ), f""Only vector banks are supported {memory_bank.type}""
+-
+-        index = BankWithIndex(
+-            bank=memory_bank, index=FaissIndex(ALL_MINILM_L6_V2_DIMENSION)
+-        )
+-        self.cache[memory_bank.identifier] = index
+-
+-    async def list_memory_banks(self) -> List[MemoryBankDef]:
+-        return [i.bank for i in self.cache.values()]
++@dataclass
++class BankWithIndex:
++    bank: MemoryBankDef
++    index: EmbeddingIndex
+ 
+     async def insert_documents(
+         self,
+-        bank_id: str,
+         documents: List[MemoryBankDocument],
+-        ttl_seconds: Optional[int] = None,
+     ) -> None:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        await index.insert_documents(documents)
++        model = get_embedding_model(self.bank.embedding_model)
++        for doc in documents:
++            content = await content_from_doc(doc)
++            chunks = make_overlapped_chunks(
++                doc.document_id,
++                content,
++                self.bank.chunk_size_in_tokens,
++                self.bank.overlap_size_in_tokens
++                or (self.bank.chunk_size_in_tokens // 4),
++            )
++            if not chunks:
++                continue
++            embeddings = model.encode([x.content for x in chunks]).astype(np.float32)
++            # Unstable order of chunks
++            chunks = sorted(chunks, key=lambda x: hash(x.content))
++            
++            await self.index.add_chunks(chunks, embeddings)
+ 
+     async def query_documents(
+         self,
+-        bank_id: str,
+         query: InterleavedTextMedia,
+         params: Optional[Dict[str, Any]] = None,
+     ) -> QueryDocumentsResponse:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        return await index.query_documents(query, params)
++        if params is None:
++            params = {}
++        k = params.get(""max_chunks"", 3)
++
++        def _process(c) -> str:
++            if isinstance(c, str):
++                return c
++            else:
++                return ""<media>""
++
++        if isinstance(query, list):
++            query_str = "" "".join([_process(c) for c in query])
++        else:
++            query_str = _process(query)
++
++        model = get_embedding_model(self.bank.embedding_model)
++        query_vector = model.encode([query_str])[0].astype(np.float32)
++        return await self.index.query(query_vector, k)
+",project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py,"['project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py']","['_:warning: Potential issue_\n\n**Add exception handling for HTTP requests**\n\nWhen making HTTP requests using `httpx`, network errors or invalid URLs can cause exceptions. Adding exception handling will make the code more robust.\n\n\n\nApply this diff to handle exceptions during HTTP requests:\n\n```diff\n             async with httpx.AsyncClient() as client:\n-                r = await client.get(doc.content.uri)\n-                return r.text\n+                try:\n+                    r = await client.get(doc.content.uri)\n+                    r.raise_for_status()\n+                    return r.text\n+                except httpx.HTTPError as e:\n+                    cprint(f""Error fetching content from {doc.content.uri}: {e}"", color=""red"")\n+                    return """"\n\n...\n\n             async with httpx.AsyncClient() as client:\n-                r = await client.get(doc.content)\n-                return r.text\n+                try:\n+                    r = await client.get(doc.content)\n+                    r.raise_for_status()\n+                    return r.text\n+                except httpx.HTTPError as e:\n+                    cprint(f""Error fetching content from {doc.content}: {e}"", color=""red"")\n+                    return """"\n```\n\n\nAlso applies to: 113-115\n\n<!-- This is an auto-generated comment by CodeRabbit -->', ""_:hammer_and_wrench: Refactor suggestion_\n\n**Expand support for additional MIME types**\n\nCurrently, the function `content_from_data` only handles 'text' and 'application/pdf' MIME types. Other common types like 'application/msword' or 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' are not supported.\n\n\n\nConsider adding support for additional MIME types or handling them more explicitly. For unsupported types, provide a clear message or handle them appropriately.\n\n<!-- This is an auto-generated comment by CodeRabbit -->"", '_:warning: Potential issue_\n\n**Handle possible None value from chardet.detect**\n\nThe `chardet.detect(data)` function may return `None` for the encoding, which could lead to an exception when decoding. Ensure that the detected encoding is valid before using it.\n\n\n\nApply this diff to handle potential `None` values:\n\n```diff\n         detected = chardet.detect(data)\n-        encoding = detected[""encoding""]\n+        detected_encoding = detected.get(""encoding"", ""utf-8"")\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\n        detected = chardet.detect(data)\n        detected_encoding = detected.get(""encoding"", ""utf-8"")\n\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Handle exceptions during embedding model encoding**\n\nThe `model.encode` function might raise exceptions if the input is invalid or if the model encounters an error. Add exception handling to manage potential issues.\n\n\n\nApply this diff to handle exceptions during encoding:\n\n```diff\n     model = get_embedding_model(self.bank.embedding_model)\n-    query_vector = model.encode([query_str])[0].astype(np.float32)\n+    try:\n+        query_vector = model.encode([query_str])[0].astype(np.float32)\n+    except Exception as e:\n+        cprint(f""Error encoding query: {e}"", color=""red"")\n+        return QueryDocumentsResponse(documents=[], total_results=0)\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Use a stable hash function for consistent ordering**\n\nSorting chunks using the built-in `hash()` function may result in inconsistent ordering across different runs due to hash randomization. Use a stable hash function like `hashlib.md5` for consistent results.\n\n\n\nApply this diff to use a stable hash function:\n\n```diff\n     # Unstable order of chunks\n-    chunks = sorted(chunks, key=lambda x: hash(x.content))\n+    import hashlib\n+    chunks = sorted(chunks, key=lambda x: hashlib.md5(x.content.encode()).hexdigest())\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Prevent potential infinite loop in \'make_overlapped_chunks\'**\n\nIf `window_len - overlap_len` is less than or equal to zero, the loop can become infinite, causing the program to hang. Ensure that `window_len` is greater than `overlap_len`.\n\n\n\nAdd a validation check before the loop:\n\n```diff\n     tokens = tokenizer.encode(text, bos=False, eos=False)\n\n+    if window_len <= overlap_len:\n+        raise ValueError(""window_len must be greater than overlap_len"")\n \n     chunks = []\n     for i in range(0, len(tokens), window_len - overlap_len):\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\n    tokens = tokenizer.encode(text, bos=False, eos=False)\n\n    if window_len <= overlap_len:\n        raise ValueError(""window_len must be greater than overlap_len"")\n\n    chunks = []\n    for i in range(0, len(tokens), window_len - overlap_len):\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Avoid reassigning the \'encoding\' variable to prevent confusion**\n\nThe variable `encoding` is reassigned multiple times, which can lead to confusion and potential errors. It\'s also possible that `encoding` becomes `None`, causing issues when decoding.\n\n\n\nApply this diff to refactor variable usage and ensure proper encoding handling:\n\n```diff\n         data = data.encode(encoding)\n\n-        encoding = parts[""encoding""]\n-        if not encoding:\n+        detected_encoding = parts[""encoding""]\n+        if not detected_encoding:\n             detected = chardet.detect(data)\n-            encoding = detected[""encoding""]\n+            detected_encoding = detected[""encoding""]\n\n         mime_type = parts[""mimetype""]\n         mime_category = mime_type.split(""/"")[0]\n         if mime_category == ""text"":\n             # For text-based files (including CSV, MD)\n-            return data.decode(encoding)\n+            return data.decode(detected_encoding)\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:hammer_and_wrench: Refactor suggestion_\n\n**Refactor duplicate code to improve maintainability**\n\nThere is duplicated logic in handling `doc.content` and `doc.content.uri`, especially when processing data URLs and making HTTP requests. Refactoring the code can reduce redundancy and improve readability.\n\n\n\nConsider refactoring the function as follows:\n\n```diff\n async def content_from_doc(doc: MemoryBankDocument) -> str:\n-    if isinstance(doc.content, URL):\n-        if doc.content.uri.startswith(""data:""):\n-            return content_from_data(doc.content.uri)\n-        else:\n-            async with httpx.AsyncClient() as client:\n-                r = await client.get(doc.content.uri)\n-                return r.text\n-\n-    pattern = re.compile(""^(https?://|file://|data:)"")\n-    if pattern.match(doc.content):\n-        if doc.content.startswith(""data:""):\n-            return content_from_data(doc.content)\n-        else:\n-            async with httpx.AsyncClient() as client:\n-                r = await client.get(doc.content)\n-                return r.text\n+    content_uri = None\n+    if isinstance(doc.content, URL):\n+        content_uri = doc.content.uri\n+    elif isinstance(doc.content, str):\n+        pattern = re.compile(""^(https?://|file://|data:)"")\n+        if pattern.match(doc.content):\n+            content_uri = doc.content\n+    if content_uri:\n+        if content_uri.startswith(""data:""):\n+            return content_from_data(content_uri)\n+        else:\n+            async with httpx.AsyncClient() as client:\n+                try:\n+                    r = await client.get(content_uri)\n+                    r.raise_for_status()\n+                    return r.text\n+                except httpx.HTTPError as e:\n+                    cprint(f""Error fetching content from {content_uri}: {e}"", color=""red"")\n+                    return """"\n     return interleaved_text_media_as_str(doc.content)\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\nasync def content_from_doc(doc: MemoryBankDocument) -> str:\n    content_uri = None\n    if isinstance(doc.content, URL):\n        content_uri = doc.content.uri\n    elif isinstance(doc.content, str):\n        pattern = re.compile(""^(https?://|file://|data:)"")\n        if pattern.match(doc.content):\n            content_uri = doc.content\n    if content_uri:\n        if content_uri.startswith(""data:""):\n            return content_from_data(content_uri)\n        else:\n            async with httpx.AsyncClient() as client:\n                try:\n                    r = await client.get(content_uri)\n                    r.raise_for_status()\n                    return r.text\n                except httpx.HTTPError as e:\n                    cprint(f""Error fetching content from {content_uri}: {e}"", color=""red"")\n                    return """"\n    return interleaved_text_media_as_str(doc.content)\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->']","[120, 110, 95, 273, 242, 141, 95, 130]"
+github.com/coderabbitai/Golden-PR-Dataset/pull/88,88,3-3,Automated Test: @eval-senior-reviewer-2,"<!-- This is an auto-generated comment: summarize by coderabbit.ai -->
+<!-- walkthrough_start -->
+
+## Walkthrough
+
+The changes in the `faiss.py` file involve a comprehensive restructuring of the codebase related to document embeddings and memory management. The `FaissIndex` class has been removed, and its functionalities have been integrated into a newly introduced `EmbeddingIndex` class, which includes abstract methods for adding chunks and querying embeddings. The `FaissMemoryImpl` class has been updated to work with the new `EmbeddingIndex`, leading to modifications in its `insert_documents` and `query_documents` methods.
+
+Several new utility functions have been added, such as `get_embedding_model` for loading sentence transformer models, `parse_data_url` for processing data URLs, and `content_from_data` for handling various MIME types and decoding base64 data. Additionally, the `content_from_doc` function has been revised to support both URL and data URI formats.
+
+The introduction of the `make_overlapped_chunks` function allows for the creation of overlapping text chunks from documents. A new data class, `BankWithIndex`, has been added to encapsulate memory banks and their corresponding embedding indices. Overall, these changes enhance the document processing and embedding management capabilities within the code.
+
+<!-- walkthrough_end --><!-- This is an auto-generated comment: resource warnings by coderabbit.ai -->
+
+> [!WARNING]
+> ## Review ran into problems
+> 
+> <details>
+> <summary>🔥 Problems</summary>
+> 
+> Git: Failed to clone repository. Please run the `@nehal-a2z full review` command to re-trigger a full review.
+> 
+> </details>
+
+<!-- end of auto-generated comment: resource warnings by coderabbit.ai --><!-- internal state start -->
+
+<!--
+
+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
+
+-->
+
+<!-- internal state end --><!-- tips_start -->
+
+---
+
+
+
+<details>
+<summary>🪧 Tips</summary>
+
+### Chat
+
+There are 3 ways to chat with [CodeRabbit](https://coderabbit.ai):
+
+> ‼️ **IMPORTANT**
+> Auto-reply has been disabled for this repository in the CodeRabbit settings. The CodeRabbit bot will not respond to your replies unless it is explicitly tagged.
+- Files and specific lines of code (under the ""Files changed"" tab): Tag `@nehal-a2z` in a new review comment at the desired location with your query. Examples:
+  - `@nehal-a2z generate unit testing code for this file.`
+  -	`@nehal-a2z modularize this function.`
+- PR comments: Tag `@nehal-a2z` in a new PR comment to ask questions about the PR branch. For the best results, please provide a very specific query, as very limited context is provided in this mode. Examples:
+  - `@nehal-a2z gather interesting stats about this repository and render them as a table. Additionally, render a pie chart showing the language distribution in the codebase.`
+  - `@nehal-a2z read src/utils.ts and generate unit testing code.`
+  - `@nehal-a2z read the files in the src/scheduler package and generate a class diagram using mermaid and a README in the markdown format.`
+  - `@nehal-a2z help me debug CodeRabbit configuration file.`
+
+Note: Be mindful of the bot's finite context window. It's strongly recommended to break down tasks such as reading entire modules into smaller chunks. For a focused discussion, use review comments to chat about specific files and their changes, instead of using the PR comments.
+
+### CodeRabbit Commands (Invoked using PR comments)
+
+- `@nehal-a2z pause` to pause the reviews on a PR.
+- `@nehal-a2z resume` to resume the paused reviews.
+- `@nehal-a2z review` to trigger an incremental review. This is useful when automatic reviews are disabled for the repository.
+- `@nehal-a2z full review` to do a full review from scratch and review all the files again.
+- `@nehal-a2z summary` to regenerate the summary of the PR.
+- `@nehal-a2z resolve` resolve all the CodeRabbit review comments.
+- `@nehal-a2z configuration` to show the current CodeRabbit configuration for the repository.
+- `@nehal-a2z help` to get help.
+
+### Other keywords and placeholders
+
+- Add `@nehal-a2z ignore` anywhere in the PR description to prevent this PR from being reviewed.
+- Add `@nehal-a2z summary` or `@coderabbitai summary` to generate the high-level summary at a specific location in the PR description.
+- Add `@nehal-a2z` or `@coderabbitai` anywhere in the PR title to generate the title automatically.
+
+### CodeRabbit Configuration File (`.coderabbit.yaml`)
+
+- You can programmatically configure CodeRabbit by adding a `.coderabbit.yaml` file to the root of your repository.
+- Please see the [configuration documentation](https://docs.coderabbit.ai/guides/configure-coderabbit) for more information.
+- If your editor has YAML language server enabled, you can add the path at the top of this file to enable auto-completion and validation: `# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json`
+
+### Documentation and Community
+
+- Visit our [Documentation](https://coderabbit.ai/docs) for detailed information on how to use CodeRabbit.
+- Join our [Discord Community](http://discord.gg/coderabbit) to get help, request features, and share feedback.
+- Follow us on [X/Twitter](https://twitter.com/coderabbitai) for updates and announcements.
+
+</details>
+
+<!-- tips_end -->"," #
+ # This source code is licensed under the terms described in the LICENSE file in
+ # the root directory of this source tree.
+-
+-import logging
+-
++import base64
++import io
++import re
++from abc import ABC, abstractmethod
++from dataclasses import dataclass
+ from typing import Any, Dict, List, Optional
++from urllib.parse import unquote
+ 
+-import faiss
++import chardet
++import httpx
+ import numpy as np
+ from numpy.typing import NDArray
++from pypdf import PdfReader
++from termcolor import cprint
+ 
+ from llama_models.llama3.api.datatypes import *  # noqa: F403
++from llama_models.llama3.api.tokenizer import Tokenizer
+ 
+ from llama_stack.apis.memory import *  # noqa: F403
+-from llama_stack.providers.datatypes import MemoryBanksProtocolPrivate
+-
+-from llama_stack.providers.utils.memory.vector_store import (
+-    ALL_MINILM_L6_V2_DIMENSION,
+-    BankWithIndex,
+-    EmbeddingIndex,
+-)
+-from llama_stack.providers.utils.telemetry import tracing
+-
+-from .config import FaissImplConfig
+-
+-logger = logging.getLogger(__name__)
+ 
++ALL_MINILM_L6_V2_DIMENSION = 384
++
++EMBEDDING_MODELS = {}
++
++
++def get_embedding_model(model: str) -> ""SentenceTransformer"":
++    global EMBEDDING_MODELS
++
++    loaded_model = EMBEDDING_MODELS.get(model)
++    if loaded_model is not None:
++        return loaded_model
++
++    print(f""Loading sentence transformer for {model}..."")
++    from sentence_transformers import SentenceTransformer
++
++    loaded_model = SentenceTransformer(model)
++    EMBEDDING_MODELS[model] = loaded_model
++    return loaded_model
++
++
++def parse_data_url(data_url: str):
++    data_url_pattern = re.compile(
++        r""^""
++        r""data:""
++        r""(?P<mimetype>[\w/\-+.]+)""
++        r""(?P<charset>;charset=(?P<encoding>[\w-]+))?""
++        r""(?P<base64>;base64)?""
++        r"",(?P<data>.*)""
++        r""$"",
++        re.DOTALL,
++    )
++    match = data_url_pattern.match(data_url)
++    if not match:
++        raise ValueError(""Invalid Data URL format"")
++
++    parts = match.groupdict()
++    parts[""is_base64""] = bool(parts[""base64""])
++    return parts
++
++
++def content_from_data(data_url: str) -> str:
++    parts = parse_data_url(data_url)
++    data = parts[""data""]
++
++    if parts[""is_base64""]:
++        data = base64.b64decode(data)
++    else:
++        data = unquote(data)
++        encoding = parts[""encoding""] or ""utf-8""
++        data = data.encode(encoding)
++
++    encoding = parts[""encoding""]
++    if not encoding:
++        detected = chardet.detect(data)
++        encoding = detected[""encoding""]
++
++    mime_type = parts[""mimetype""]
++    mime_category = mime_type.split(""/"")[0]
++    if mime_category == ""text"":
++        # For text-based files (including CSV, MD)
++        return data.decode(encoding)
++
++    elif mime_type == ""application/pdf"":
++        # For PDF and DOC/DOCX files, we can't reliably convert to string)
++        pdf_bytes = io.BytesIO(data)
++        pdf_reader = PdfReader(pdf_bytes)
++        return ""\n"".join([page.extract_text() for page in pdf_reader.pages])
++
++    else:
++        cprint(""Could not extract content from data_url properly."", color=""red"")
++        return """"
++
++
++async def content_from_doc(doc: MemoryBankDocument) -> str:
++    if isinstance(doc.content, URL):
++        if doc.content.uri.startswith(""data:""):
++            return content_from_data(doc.content.uri)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content.uri)
++                return r.text
++
++    pattern = re.compile(""^(https?://|file://|data:)"")
++    if pattern.match(doc.content):
++        if doc.content.startswith(""data:""):
++            return content_from_data(doc.content)
++        else:
++            async with httpx.AsyncClient() as client:
++                r = await client.get(doc.content)
++                return r.text
++
++    return interleaved_text_media_as_str(doc.content)
++
++
++def make_overlapped_chunks(
++    document_id: str, text: str, window_len: int, overlap_len: int
++) -> List[Chunk]:
++    tokenizer = Tokenizer.get_instance()
++    tokens = tokenizer.encode(text, bos=False, eos=False)
++
++    chunks = []
++    for i in range(0, len(tokens), window_len - overlap_len):
++        toks = tokens[i : i + window_len]
++        chunk = tokenizer.decode(toks)
++        chunks.append(
++            Chunk(content=chunk, token_count=len(toks), document_id=document_id)
++        )
+ 
+-class FaissIndex(EmbeddingIndex):
+-    id_by_index: Dict[int, str]
+-    chunk_by_index: Dict[int, str]
++    return chunks
+ 
+-    def __init__(self, dimension: int):
+-        self.index = faiss.IndexFlatL2(dimension)
+-        self.id_by_index = {}
+-        self.chunk_by_index = {}
+ 
+-    @tracing.span(name=""add_chunks"")
++class EmbeddingIndex(ABC):
++    @abstractmethod
+     async def add_chunks(self, chunks: List[Chunk], embeddings: NDArray):
+-        indexlen = len(self.id_by_index)
+-        for i, chunk in enumerate(chunks):
+-            self.chunk_by_index[indexlen + i] = chunk
+-            self.id_by_index[indexlen + i] = chunk.document_id
+-
+-        self.index.add(np.array(embeddings).astype(np.float32))
++        raise NotImplementedError()
+ 
++    @abstractmethod
+     async def query(self, embedding: NDArray, k: int) -> QueryDocumentsResponse:
+-        distances, indices = self.index.search(
+-            embedding.reshape(1, -1).astype(np.float32), k
+-        )
+-
+-        chunks = []
+-        scores = []
+-        for d, i in zip(distances[0], indices[0]):
+-            if i < 0:
+-                continue
+-            chunks.append(self.chunk_by_index[int(i)])
+-            scores.append(1.0 / float(d))
+-
+-        return QueryDocumentsResponse(chunks=chunks, scores=scores)
++        raise NotImplementedError()
+ 
+ 
+-class FaissMemoryImpl(Memory, MemoryBanksProtocolPrivate):
+-    def __init__(self, config: FaissImplConfig) -> None:
+-        self.config = config
+-        self.cache = {}
+-
+-    async def initialize(self) -> None: ...
+-
+-    async def shutdown(self) -> None: ...
+-
+-    async def register_memory_bank(
+-        self,
+-        memory_bank: MemoryBankDef,
+-    ) -> None:
+-        assert (
+-            memory_bank.type == MemoryBankType.vector.value
+-        ), f""Only vector banks are supported {memory_bank.type}""
+-
+-        index = BankWithIndex(
+-            bank=memory_bank, index=FaissIndex(ALL_MINILM_L6_V2_DIMENSION)
+-        )
+-        self.cache[memory_bank.identifier] = index
+-
+-    async def list_memory_banks(self) -> List[MemoryBankDef]:
+-        return [i.bank for i in self.cache.values()]
++@dataclass
++class BankWithIndex:
++    bank: MemoryBankDef
++    index: EmbeddingIndex
+ 
+     async def insert_documents(
+         self,
+-        bank_id: str,
+         documents: List[MemoryBankDocument],
+-        ttl_seconds: Optional[int] = None,
+     ) -> None:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        await index.insert_documents(documents)
++        model = get_embedding_model(self.bank.embedding_model)
++        for doc in documents:
++            content = await content_from_doc(doc)
++            chunks = make_overlapped_chunks(
++                doc.document_id,
++                content,
++                self.bank.chunk_size_in_tokens,
++                self.bank.overlap_size_in_tokens
++                or (self.bank.chunk_size_in_tokens // 4),
++            )
++            if not chunks:
++                continue
++            embeddings = model.encode([x.content for x in chunks]).astype(np.float32)
++            # Unstable order of chunks
++            chunks = sorted(chunks, key=lambda x: hash(x.content))
++            
++            await self.index.add_chunks(chunks, embeddings)
+ 
+     async def query_documents(
+         self,
+-        bank_id: str,
+         query: InterleavedTextMedia,
+         params: Optional[Dict[str, Any]] = None,
+     ) -> QueryDocumentsResponse:
+-        index = self.cache.get(bank_id)
+-        if index is None:
+-            raise ValueError(f""Bank {bank_id} not found"")
+-
+-        return await index.query_documents(query, params)
++        if params is None:
++            params = {}
++        k = params.get(""max_chunks"", 3)
++
++        def _process(c) -> str:
++            if isinstance(c, str):
++                return c
++            else:
++                return ""<media>""
++
++        if isinstance(query, list):
++            query_str = "" "".join([_process(c) for c in query])
++        else:
++            query_str = _process(query)
++
++        model = get_embedding_model(self.bank.embedding_model)
++        query_vector = model.encode([query_str])[0].astype(np.float32)
++        return await self.index.query(query_vector, k)
+",project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py,"['project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py', 'project/api/llama_stack/providers/impls/meta_reference/memory/faiss.py']","['_:hammer_and_wrench: Refactor suggestion_\n\n**Consider caching query embeddings.**\n\nIf the same query is made multiple times, we\'re recomputing its embedding each time. Consider implementing a simple LRU cache.\n\n```diff\n+from functools import lru_cache\n+\n+@lru_cache(maxsize=1000)\n+def get_query_embedding(model: ""SentenceTransformer"", query_str: str) -> NDArray:\n+    return model.encode([query_str])[0].astype(np.float32)\n+\n     async def query_documents(\n         self,\n         query: InterleavedTextMedia,\n         params: Optional[Dict[str, Any]] = None,\n     ) -> QueryDocumentsResponse:\n         # ... existing code ...\n         \n         model = get_embedding_model(self.bank.embedding_model)\n-        query_vector = model.encode([query_str])[0].astype(np.float32)\n+        query_vector = get_query_embedding(model, query_str)\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Consider adding error handling for model loading.**\n\nThe model loading could fail for various reasons (network issues, invalid model name, etc.). Consider adding proper error handling.\n\n```diff\n def get_embedding_model(model: str) -> ""SentenceTransformer"":\n     global EMBEDDING_MODELS\n \n     loaded_model = EMBEDDING_MODELS.get(model)\n     if loaded_model is not None:\n         return loaded_model\n \n     print(f""Loading sentence transformer for {model}..."")\n-    from sentence_transformers import SentenceTransformer\n+    try:\n+        from sentence_transformers import SentenceTransformer\n \n-    loaded_model = SentenceTransformer(model)\n-    EMBEDDING_MODELS[model] = loaded_model\n-    return loaded_model\n+        loaded_model = SentenceTransformer(model)\n+        EMBEDDING_MODELS[model] = loaded_model\n+        return loaded_model\n+    except Exception as e:\n+        raise RuntimeError(f""Failed to load embedding model \'{model}\': {str(e)}"")\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef get_embedding_model(model: str) -> ""SentenceTransformer"":\n    global EMBEDDING_MODELS\n\n    loaded_model = EMBEDDING_MODELS.get(model)\n    if loaded_model is not None:\n        return loaded_model\n\n    print(f""Loading sentence transformer for {model}..."")\n    try:\n        from sentence_transformers import SentenceTransformer\n\n        loaded_model = SentenceTransformer(model)\n        EMBEDDING_MODELS[model] = loaded_model\n        return loaded_model\n    except Exception as e:\n        raise RuntimeError(f""Failed to load embedding model \'{model}\': {str(e)}"")\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Add timeout for HTTP requests.**\n\nThe HTTP requests could hang indefinitely. Consider adding timeouts and retries.\n\n```diff\n     if isinstance(doc.content, URL):\n         if doc.content.uri.startswith(""data:""):\n             return content_from_data(doc.content.uri)\n         else:\n-            async with httpx.AsyncClient() as client:\n+            async with httpx.AsyncClient(timeout=30.0) as client:\n                 r = await client.get(doc.content.uri)\n+                r.raise_for_status()\n                 return r.text\n```\n\n\n> Committable suggestion was skipped due to low confidence.\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Consider adding validation for window and overlap lengths.**\n\nThe function should validate that window_len is greater than overlap_len and both are positive.\n\n```diff\n def make_overlapped_chunks(\n     document_id: str, text: str, window_len: int, overlap_len: int\n ) -> List[Chunk]:\n+    if window_len <= 0:\n+        raise ValueError(""window_len must be positive"")\n+    if overlap_len < 0:\n+        raise ValueError(""overlap_len must be non-negative"")\n+    if overlap_len >= window_len:\n+        raise ValueError(""overlap_len must be less than window_len"")\n+\n     tokenizer = Tokenizer.get_instance()\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef make_overlapped_chunks(\n    document_id: str, text: str, window_len: int, overlap_len: int\n) -> List[Chunk]:\n    if window_len <= 0:\n        raise ValueError(""window_len must be positive"")\n    if overlap_len < 0:\n        raise ValueError(""overlap_len must be non-negative"")\n    if overlap_len >= window_len:\n        raise ValueError(""overlap_len must be less than window_len"")\n\n    tokenizer = Tokenizer.get_instance()\n    tokens = tokenizer.encode(text, bos=False, eos=False)\n\n    chunks = []\n    for i in range(0, len(tokens), window_len - overlap_len):\n        toks = tokens[i : i + window_len]\n        chunk = tokenizer.decode(toks)\n        chunks.append(\n            Chunk(content=chunk, token_count=len(toks), document_id=document_id)\n        )\n\n    return chunks\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Consider adding validation for the data URL length.**\n\nVery long data URLs could potentially cause memory issues. Consider adding a maximum length check.\n\n```diff\n def parse_data_url(data_url: str):\n+    MAX_DATA_URL_LENGTH = 50 * 1024 * 1024  # 50MB limit\n+    if len(data_url) > MAX_DATA_URL_LENGTH:\n+        raise ValueError(f""Data URL exceeds maximum length of {MAX_DATA_URL_LENGTH} bytes"")\n+\n     data_url_pattern = re.compile(\n         r""^""\n         r""data:""\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef parse_data_url(data_url: str):\n    MAX_DATA_URL_LENGTH = 50 * 1024 * 1024  # 50MB limit\n    if len(data_url) > MAX_DATA_URL_LENGTH:\n        raise ValueError(f""Data URL exceeds maximum length of {MAX_DATA_URL_LENGTH} bytes"")\n\n    data_url_pattern = re.compile(\n        r""^""\n        r""data:""\n        r""(?P<mimetype>[\\w/\\-+.]+)""\n        r""(?P<charset>;charset=(?P<encoding>[\\w-]+))?""\n        r""(?P<base64>;base64)?""\n        r"",(?P<data>.*)""\n        r""$"",\n        re.DOTALL,\n    )\n    match = data_url_pattern.match(data_url)\n    if not match:\n        raise ValueError(""Invalid Data URL format"")\n\n    parts = match.groupdict()\n    parts[""is_base64""] = bool(parts[""base64""])\n    return parts\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:hammer_and_wrench: Refactor suggestion_\n\n**Consider adding batch processing for document insertion.**\n\nThe current implementation processes documents sequentially. Consider adding batch processing for better performance.\n\n```diff\n     async def insert_documents(\n         self,\n         documents: List[MemoryBankDocument],\n     ) -> None:\n         model = get_embedding_model(self.bank.embedding_model)\n+        BATCH_SIZE = 10\n+        \n+        for i in range(0, len(documents), BATCH_SIZE):\n+            batch = documents[i:i + BATCH_SIZE]\n+            chunks_list = []\n+            contents = []\n+            \n+            # Process documents in parallel\n+            contents = await asyncio.gather(*[\n+                content_from_doc(doc) for doc in batch\n+            ])\n+            \n+            for doc, content in zip(batch, contents):\n+                chunks = make_overlapped_chunks(\n+                    doc.document_id,\n+                    content,\n+                    self.bank.chunk_size_in_tokens,\n+                    self.bank.overlap_size_in_tokens\n+                    or (self.bank.chunk_size_in_tokens // 4),\n+                )\n+                if chunks:\n+                    chunks_list.extend(chunks)\n+            \n+            if not chunks_list:\n+                continue\n+                \n+            # Process all chunks in batch\n+            embeddings = model.encode([x.content for x in chunks_list]).astype(np.float32)\n+            chunks_list = sorted(chunks_list, key=lambda x: hash(x.content))\n+            await self.index.add_chunks(chunks_list, embeddings)\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\n@dataclass\nclass BankWithIndex:\n    bank: MemoryBankDef\n    index: EmbeddingIndex\n\n    async def insert_documents(\n        self,\n        documents: List[MemoryBankDocument],\n    ) -> None:\n        model = get_embedding_model(self.bank.embedding_model)\n        BATCH_SIZE = 10\n        \n        for i in range(0, len(documents), BATCH_SIZE):\n            batch = documents[i:i + BATCH_SIZE]\n            chunks_list = []\n            contents = []\n            \n            # Process documents in parallel\n            contents = await asyncio.gather(*[\n                content_from_doc(doc) for doc in batch\n            ])\n            \n            for doc, content in zip(batch, contents):\n                chunks = make_overlapped_chunks(\n                    doc.document_id,\n                    content,\n                    self.bank.chunk_size_in_tokens,\n                    self.bank.overlap_size_in_tokens\n                    or (self.bank.chunk_size_in_tokens // 4),\n                )\n                if chunks:\n                    chunks_list.extend(chunks)\n            \n            if not chunks_list:\n                continue\n                \n            # Process all chunks in batch\n            embeddings = model.encode([x.content for x in chunks_list]).astype(np.float32)\n            chunks_list = sorted(chunks_list, key=lambda x: hash(x.content))\n            await self.index.add_chunks(chunks_list, embeddings)\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->', '_:warning: Potential issue_\n\n**Add memory management for large PDF files.**\n\nThe PDF processing could consume significant memory for large files. Consider adding checks and cleanup.\n\n```diff\n     elif mime_type == ""application/pdf"":\n-        pdf_bytes = io.BytesIO(data)\n-        pdf_reader = PdfReader(pdf_bytes)\n-        return ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n+        MAX_PDF_SIZE = 100 * 1024 * 1024  # 100MB limit\n+        if len(data) > MAX_PDF_SIZE:\n+            raise ValueError(f""PDF exceeds maximum size of {MAX_PDF_SIZE} bytes"")\n+        \n+        try:\n+            pdf_bytes = io.BytesIO(data)\n+            pdf_reader = PdfReader(pdf_bytes)\n+            text = ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n+            return text\n+        finally:\n+            pdf_bytes.close()\n```\n\n\n<!-- suggestion_start -->\n<details>\n<summary>📝 Committable suggestion</summary>\n\n> ‼️ **IMPORTANT**\n> Carefully review the code before committing. Ensure that it accurately replaces the highlighted code, contains no missing lines, and has no issues with indentation. Thoroughly test & benchmark the code to ensure it meets the requirements.\n\n`````suggestion\ndef content_from_data(data_url: str) -> str:\n    parts = parse_data_url(data_url)\n    data = parts[""data""]\n\n    if parts[""is_base64""]:\n        data = base64.b64decode(data)\n    else:\n        data = unquote(data)\n        encoding = parts[""encoding""] or ""utf-8""\n        data = data.encode(encoding)\n\n    encoding = parts[""encoding""]\n    if not encoding:\n        detected = chardet.detect(data)\n        encoding = detected[""encoding""]\n\n    mime_type = parts[""mimetype""]\n    mime_category = mime_type.split(""/"")[0]\n    if mime_category == ""text"":\n        # For text-based files (including CSV, MD)\n        return data.decode(encoding)\n\n    elif mime_type == ""application/pdf"":\n        MAX_PDF_SIZE = 100 * 1024 * 1024  # 100MB limit\n        if len(data) > MAX_PDF_SIZE:\n            raise ValueError(f""PDF exceeds maximum size of {MAX_PDF_SIZE} bytes"")\n        \n        try:\n            pdf_bytes = io.BytesIO(data)\n            pdf_reader = PdfReader(pdf_bytes)\n            text = ""\\n"".join([page.extract_text() for page in pdf_reader.pages])\n            return text\n        finally:\n            pdf_bytes.close()\n\n    else:\n        cprint(""Could not extract content from data_url properly."", color=""red"")\n        return """"\n`````\n\n</details>\n<!-- suggestion_end -->\n\n<!-- This is an auto-generated comment by CodeRabbit -->']","[274, 57, 131, 151, 77, 244, 111]"
+github.com/coderabbitai/Golden-PR-Dataset/pull/52,52,334-334,Automated Test: @eval-junior-reviewer-1,"<!-- This is an auto-generated comment: summarize by coderabbit.ai -->
+<!-- walkthrough_start -->
+
+## Walkthrough
+
+The pull request introduces modifications to the `server.py` file located in the `project/api/llama_stack/distribution/server` directory. A new configuration variable named `uvicorn_config` is added, which includes a `timeout_keep_alive` parameter set to 5 seconds, indicating a more aggressive timeout policy for maintaining connections. Additionally, a comment is included to note the introduction of ""risky assumptions about network reliability."" 
+
+The changes do not affect the existing structure or logic of the functions within the file. Key components such as the `global_exception_handler`, `translate_exception`, and `passthrough` functions remain unchanged, ensuring that the core functionality and error handling mechanisms are preserved. The primary focus of the modifications is on the server configuration, specifically how the `uvicorn` server is set up, without introducing new functionality or altering the application's internal logic. Overall, the changes are centered around enhancing the server's configuration parameters while maintaining existing operational behavior.
+
+<!-- walkthrough_end --><!-- This is an auto-generated comment: resource warnings by coderabbit.ai -->
+
+> [!WARNING]
+> ## Review ran into problems
+> 
+> <details>
+> <summary>🔥 Problems</summary>
+> 
+> Git: Failed to clone repository. Please run the `@nehal-a2z full review` command to re-trigger a full review.
+> 
+> </details>
+
+<!-- end of auto-generated comment: resource warnings by coderabbit.ai -->
+
+---
+
+<details>
+<summary>📜 Recent review details</summary>
+
+**Configuration used: CodeRabbit UI**
+**Review profile: CHILL**
+
+<details>
+<summary>📥 Commits</summary>
+
+Files that changed from the base of the PR and between d3f9e5a3996c8c56635a90f80be9aabdc340fda0 and fdd4441f5c5b0293ef170c537ee779e9c453c256.
+
+</details>
+
+<details>
+<summary>📒 Files selected for processing (1)</summary>
+
+* project/api/llama_stack/distribution/server/server.py (1 hunks)
+
+</details>
+
+<details>
+<summary>🧰 Additional context used</summary>
+
+
+
+
+
+</details>
+
+<details>
+<summary>🔇 Additional comments (2)</summary><blockquote>
+
+<details>
+<summary>project/api/llama_stack/distribution/server/server.py (2)</summary><blockquote>
+
+`337-338`: **Clarify the ""risky assumptions"" comment**
+
+The added comment mentions ""risky assumptions about network reliability"" without providing specific details. This vagueness could lead to misunderstandings or overlooked issues in the future.
+
+Could you please elaborate on these assumptions and their potential impact on the system? This information would be valuable for future maintenance and troubleshooting.
+
+---
+
+`339-342`: _:warning: Potential issue_
+
+**Address unused `uvicorn_config` and aggressive timeout**
+
+1. The newly created `uvicorn_config` is not being used in the `uvicorn.run()` call. This appears to be an oversight.
+
+2. Setting `timeout_keep_alive` to 5 seconds is described as an ""Aggressive timeout"". This could potentially cause issues with long-running connections or slow clients.
+
+
+To resolve these issues:
+
+1. Update the `uvicorn.run()` call to use the `uvicorn_config`:
+
+```diff
+-uvicorn.run(app, host=listen_host, port=port)
++uvicorn.Server(uvicorn_config).run()
+```
+
+2. Consider the implications of the aggressive timeout:
+   - How might this affect long-running operations?
+   - Could this negatively impact users with slower internet connections?
+   - Is this timeout aligned with the expected behavior of your API endpoints?
+
+
+To better understand the impact of this change, could you provide more context on why this aggressive timeout was introduced? Are there specific performance issues or concerns this is addressing?
+
+</blockquote></details>
+
+</blockquote></details>
+
+</details><!-- internal state start -->
+
+<!--
+
+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
+
+-->
+
+<!-- internal state end --><!-- tips_start -->
+
+---
+
+
+
+<details>
+<summary>🪧 Tips</summary>
+
+### Chat
+
+There are 3 ways to chat with [CodeRabbit](https://coderabbit.ai):
+
+> ‼️ **IMPORTANT**
+> Auto-reply has been disabled for this repository in the CodeRabbit settings. The CodeRabbit bot will not respond to your replies unless it is explicitly tagged.
+- Files and specific lines of code (under the ""Files changed"" tab): Tag `@nehal-a2z` in a new review comment at the desired location with your query. Examples:
+  - `@nehal-a2z generate unit testing code for this file.`
+  -	`@nehal-a2z modularize this function.`
+- PR comments: Tag `@nehal-a2z` in a new PR comment to ask questions about the PR branch. For the best results, please provide a very specific query, as very limited context is provided in this mode. Examples:
+  - `@nehal-a2z gather interesting stats about this repository and render them as a table. Additionally, render a pie chart showing the language distribution in the codebase.`
+  - `@nehal-a2z read src/utils.ts and generate unit testing code.`
+  - `@nehal-a2z read the files in the src/scheduler package and generate a class diagram using mermaid and a README in the markdown format.`
+  - `@nehal-a2z help me debug CodeRabbit configuration file.`
+
+Note: Be mindful of the bot's finite context window. It's strongly recommended to break down tasks such as reading entire modules into smaller chunks. For a focused discussion, use review comments to chat about specific files and their changes, instead of using the PR comments.
+
+### CodeRabbit Commands (Invoked using PR comments)
+
+- `@nehal-a2z pause` to pause the reviews on a PR.
+- `@nehal-a2z resume` to resume the paused reviews.
+- `@nehal-a2z review` to trigger an incremental review. This is useful when automatic reviews are disabled for the repository.
+- `@nehal-a2z full review` to do a full review from scratch and review all the files again.
+- `@nehal-a2z summary` to regenerate the summary of the PR.
+- `@nehal-a2z resolve` resolve all the CodeRabbit review comments.
+- `@nehal-a2z configuration` to show the current CodeRabbit configuration for the repository.
+- `@nehal-a2z help` to get help.
+
+### Other keywords and placeholders
+
+- Add `@nehal-a2z ignore` anywhere in the PR description to prevent this PR from being reviewed.
+- Add `@nehal-a2z summary` or `@coderabbitai summary` to generate the high-level summary at a specific location in the PR description.
+- Add `@nehal-a2z` or `@coderabbitai` anywhere in the PR title to generate the title automatically.
+
+### CodeRabbit Configuration File (`.coderabbit.yaml`)
+
+- You can programmatically configure CodeRabbit by adding a `.coderabbit.yaml` file to the root of your repository.
+- Please see the [configuration documentation](https://docs.coderabbit.ai/guides/configure-coderabbit) for more information.
+- If your editor has YAML language server enabled, you can add the path at the top of this file to enable auto-completion and validation: `# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json`
+
+### Documentation and Community
+
+- Visit our [Documentation](https://coderabbit.ai/docs) for detailed information on how to use CodeRabbit.
+- Join our [Discord Community](http://discord.gg/coderabbit) to get help, request features, and share feedback.
+- Follow us on [X/Twitter](https://twitter.com/coderabbitai) for updates and announcements.
+
+</details>
+
+<!-- tips_end -->","     import uvicorn
+ 
+     # FYI this does not do hot-reloads
++    # Added risky assumptions about network reliability
+     listen_host = ""::"" if not disable_ipv6 else ""0.0.0.0""
++    uvicorn_config = uvicorn.Config(app, host=listen_host, port=port,
++                                   timeout_keep_alive=5)  # Aggressive timeout
+     print(f""Listening on {listen_host}:{port}"")
+     uvicorn.run(app, host=listen_host, port=port)
+ 
+",project/api/llama_stack/distribution/server/server.py,[],[],[]
