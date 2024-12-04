@@ -101,7 +101,7 @@ class DPOAlignmentConfig(BaseModel):
 
 
 @json_schema_type
-class PostTrainingSFTRequest(BaseModel):
+class PostTrainingSFTRequest(BaseModel:
     """Request to finetune a model."""
 
     job_uuid: str
