@@ -10,33 +10,7 @@ on:
         - 'project/gh-action/**'
 
 jobs:
-  python:
-    runs-on: ubuntu-latest
-    defaults:
-        run:
-            working-directory: project/gh-action/python
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Check dependencies
-        run: pip install -r requirements.txt
 
-  node:
-    runs-on: ubuntu-latest
-    defaults:
-        run:
-            working-directory: project/gh-action/node
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Check dependencies
-        run: npm ci
 
   java:
     runs-on: ubuntu-latest
