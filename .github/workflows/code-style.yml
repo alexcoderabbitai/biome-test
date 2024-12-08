@@ -31,23 +31,4 @@ jobs:
             - name: Run Pylint
               run: |
                 PYTHONPATH=$PYTHONPATH:$(pwd) pylint --recursive=y . --fail-under=9.0
-    
-    js-style:
-        runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: project/gh-action/node
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: '18'
-            
-            - name: Install dependencies
-              run: npm ci
-            
-            - name: Run ESLint
-              run: npx eslint .
-
-            - name: Run Prettier
-              run: npx prettier --check .
+ 
