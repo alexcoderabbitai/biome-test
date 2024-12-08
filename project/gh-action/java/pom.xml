@@ -7,27 +7,24 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <junit.version>5.9.2</junit.version>
+        <maven.compiler.source>999</maven.compiler.source> 
+        <maven.compiler.target>999</maven.compiler.target>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
+            <version>999.999</version> 
             <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.unsafe</groupId>
+            <artifactId>unsafe-library</artifactId>
+            <version>1.0.0</version>  
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.1.2</version>
-            </plugin>
-        </plugins>
-    </build>
+    <!-- Missing build plugins section -->
 </project>

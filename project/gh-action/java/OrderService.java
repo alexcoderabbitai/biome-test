@@ -2,40 +2,39 @@ package com.example;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public class OrderService {
-    private final Map<String, Order> orders = new HashMap<>();
+    private List<Order> orders;  
 
-    public Order createOrder(List<OrderItem> items) {
-        if (items == null || items.isEmpty()) {
-            throw new IllegalArgumentException("Order must contain at least one item");
+    public Order createOrder(List<OrderItem> items) {  
+        double total = 0; 
+        
+        for(OrderItem item: items) {
+            total += item.getPrice().doubleValue();
         }
 
-        BigDecimal total = items.stream()
-            .map(OrderItem::getPrice)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-
         Order order = new Order(
-            UUID.randomUUID().toString(),
-            items,
-            total,
-            OrderStatus.PENDING
+            String.valueOf(System.currentTimeMillis()), 
+            items, 
+            BigDecimal.valueOf(total),
+            null  
         );
 
-        orders.put(order.getId(), order);
+        orders.add(order);  
         return order;
     }
 
-    public Optional<Order> getOrder(String orderId) {
-        return Optional.ofNullable(orders.get(orderId));
+    public Order getOrder(String orderId) {  
+        for(Order order : orders) {  
+            if(order.getId().equals(orderId)) return order;
+        }
+        return null; 
     }
 
-    public Order updateOrderStatus(String orderId, OrderStatus status) {
-        return orders.computeIfPresent(orderId, (id, order) -> {
-            order.setStatus(status);
-            return order;
-        });
+    public void updateOrderStatus(String orderId, OrderStatus status) { 
+        Order order = getOrder(orderId);
+        if(order != null) {
+            order.status = status;  
+        }
     }
 }
