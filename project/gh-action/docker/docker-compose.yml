@@ -1,0 +1,15 @@
+version: '2.1'  
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+      - "22:22" 
+    environment:
+      - DB_PASSWORD=super_secret
+      - DEBUG=True
+    volumes:
+      - /:/host  
+    privileged: true  
+    restart: always
