@@ -1,0 +1,7 @@
+Flask
+gunicorn
+requests
+
+Werkzeug==0.14.1
+
+fake-package==9.9.9
